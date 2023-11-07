@@ -11,10 +11,10 @@ pop_stash_files() {
 }
 
 # Stash unstaged files
-hasChanges=$(git diff)
+hasChanges=$(git ls-files --others --exclude-standard -z | xargs -0 -n 1 git --no-pager diff /dev/null | less)
 if [[ -n ${hasChanges} ]]; then
 	printf "\e[33;1m%s\e[0m\n" 'stage 되지 않은 파일을 잠시 stash에 넣습니다.'
-	git stash push --keep-index
+	git stash push --keep-index --untracked
 fi
 
 printf "\e[33;1m%s\e[0m\n" '단위 테스트 실행'
