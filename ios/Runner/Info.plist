@@ -45,5 +45,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string></string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string></string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_D4820AFB1467._tcp</string>
+	</array>
 </dict>
 </plist>
