@@ -23,6 +23,7 @@
     "CODECOV",
     "pubspec",
     "prunner",
-    "ci"
+    "ci",
+    "nportverse"
   ]
 }
