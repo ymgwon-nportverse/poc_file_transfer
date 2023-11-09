@@ -153,6 +153,7 @@ enum PayloadType {
   none,
   bytes,
   file,
+  // TODO: stream 은 현재 제대로 구현이 되어 있지 않기 때문에 처리가 필요함
   stream,
 }
 
@@ -190,13 +191,23 @@ class PayloadTransferUpdate {
   final PayloadStatus status;
 }
 
+/// file로 보낼때는 filePath에만 값이 있어야하고,
+/// bytes로 보낼때는 bytes에만 값이 있어야함.
+///
+/// assert 문 혹은
+/// [test](test/src/nearby/application/nearby_communication_test.dart)
+/// 참고
 class Payload {
   const Payload({
     required this.id,
     this.bytes,
     this.type = PayloadType.none,
     this.filePath,
-  });
+  }) : assert(
+          (bytes == null && filePath != null) ||
+              (filePath == null && bytes != null),
+          'Payload must have either bytes or filePath, not both or neither',
+        );
 
   final int id;
   final PayloadType type;
