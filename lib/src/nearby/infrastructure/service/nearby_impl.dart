@@ -1,8 +1,9 @@
 import 'package:flutter/services.dart';
-import 'package:poc/src/nearby/application/nearby_communication.dart';
+import 'package:poc/src/nearby/application/service/nearby.dart';
+import 'package:poc/src/nearby/infrastructure/service/exceptions.dart';
 
-class NearbyCommunicationImpl implements NearbyCommunication {
-  NearbyCommunicationImpl({MethodChannel? channel})
+class NearbyImpl implements Nearby {
+  NearbyImpl({MethodChannel? channel})
       : _channel = channel ?? const MethodChannel('nearby_connections') {
     _initializeMethodCallHandler();
   }
@@ -25,9 +26,9 @@ class NearbyCommunicationImpl implements NearbyCommunication {
 
   /// native -> flutter 로 호출되는 callback 함수 처리
   void _initializeMethodCallHandler() {
-    _channel.setMethodCallHandler(
+    return _channel.setMethodCallHandler(
       (MethodCall call) async {
-        Map<String, dynamic> args = call.arguments!;
+        final Map<dynamic, dynamic> args = call.arguments!;
 
         // step 1)
         // method 이름에 따라 enum으로 변환
@@ -70,18 +71,22 @@ class NearbyCommunicationImpl implements NearbyCommunication {
     String serviceId = 'com.nportverse.poc',
     required OnEndpointFound onEndpointFound,
     required OnEndpointLost onEndpointLost,
-  }) {
+  }) async {
     _onEndpointFound = onEndpointFound;
     _onEndpointLost = onEndpointLost;
 
-    return _channel.invokeMethod(
-      'startDiscovery',
-      <String, dynamic>{
-        'userName': userName,
-        'strategy': strategy.index,
-        'serviceId': serviceId,
-      },
-    );
+    try {
+      await _channel.invokeMethod(
+        'startDiscovery',
+        <String, dynamic>{
+          'userName': userName,
+          'strategy': strategy.index,
+          'serviceId': serviceId,
+        },
+      );
+    } on PlatformException {
+      throw AlreadyInUseException();
+    }
   }
 
   @override
@@ -93,19 +98,22 @@ class NearbyCommunicationImpl implements NearbyCommunication {
     required OnConnectionInitiated onConnectionInitiated,
     required OnConnectionResult onConnectionResult,
     required OnDisconnected onDisconnected,
-  }) {
+  }) async {
     _advertiseConnectionInitiated = onConnectionInitiated;
     _advertiseConnectionResult = onConnectionResult;
     _advertiseDisconnected = onDisconnected;
-
-    return _channel.invokeMethod(
-      'startAdvertising',
-      <String, dynamic>{
-        'userName': userName,
-        'strategy': strategy.index,
-        'serviceId': serviceId,
-      },
-    );
+    try {
+      await _channel.invokeMethod(
+        'startAdvertising',
+        <String, dynamic>{
+          'userName': userName,
+          'strategy': strategy.index,
+          'serviceId': serviceId,
+        },
+      );
+    } on PlatformException {
+      throw AlreadyInUseException();
+    }
   }
 
   @override
@@ -205,23 +213,23 @@ class NearbyCommunicationImpl implements NearbyCommunication {
     );
   }
 
-  void _handleOnAdvertiseConnectionInitiated(Map<String, dynamic> args) {
+  void _handleOnAdvertiseConnectionInitiated(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
     String endpointName = args['endpointName'] ?? '-1';
-    String authenticationToken = args['authenticationToken'] ?? '-1';
+    String authenticationDigits = args['authenticationDigits'] ?? '-1';
     bool isIncomingConnection = args['isIncomingConnection'] ?? false;
 
     _advertiseConnectionInitiated?.call(
       endpointId,
       ConnectionInfo(
         endpointName,
-        authenticationToken,
+        authenticationDigits,
         isIncomingConnection,
       ),
     );
   }
 
-  void _handleOnAdvertiseConnectionResult(Map<String, dynamic> args) {
+  void _handleOnAdvertiseConnectionResult(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
     ConnectionStatus statusCode = ConnectionStatus
         .values[args['statusCode'] ?? ConnectionStatus.error.index];
@@ -229,29 +237,29 @@ class NearbyCommunicationImpl implements NearbyCommunication {
     _advertiseConnectionResult?.call(endpointId, statusCode);
   }
 
-  void _handleOnAdvertiseDisconnected(Map<String, dynamic> args) {
+  void _handleOnAdvertiseDisconnected(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
 
     _advertiseDisconnected?.call(endpointId);
   }
 
-  void _handleOnDiscoveryConnectionInitiated(Map<String, dynamic> args) {
+  void _handleOnDiscoveryConnectionInitiated(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
     String endpointName = args['endpointName'] ?? '-1';
-    String authenticationToken = args['authenticationToken'] ?? '-1';
+    String authenticationDigits = args['authenticationDigits'] ?? '-1';
     bool isIncomingConnection = args['isIncomingConnection'] ?? false;
 
     _discoverConnectionInitiated?.call(
       endpointId,
       ConnectionInfo(
         endpointName,
-        authenticationToken,
+        authenticationDigits,
         isIncomingConnection,
       ),
     );
   }
 
-  void _handleOnDiscoveryConnectionResult(Map<String, dynamic> args) {
+  void _handleOnDiscoveryConnectionResult(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
     ConnectionStatus statusCode = ConnectionStatus
         .values[args['statusCode'] ?? ConnectionStatus.error.index];
@@ -259,12 +267,12 @@ class NearbyCommunicationImpl implements NearbyCommunication {
     _discoverConnectionResult?.call(endpointId, statusCode);
   }
 
-  void _handleOnDiscoveryDisconnected(Map<String, dynamic> args) {
+  void _handleOnDiscoveryDisconnected(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
     _discoverDisconnected?.call(endpointId);
   }
 
-  void _handleOnEndpointFound(Map<String, dynamic> args) {
+  void _handleOnEndpointFound(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
     String endpointName = args['endpointName'] ?? '-1';
     String serviceId = args['serviceId'] ?? '-1';
@@ -272,13 +280,13 @@ class NearbyCommunicationImpl implements NearbyCommunication {
     _onEndpointFound?.call(endpointId, endpointName, serviceId);
   }
 
-  void _handleOnEndpointLost(Map<String, dynamic> args) {
+  void _handleOnEndpointLost(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
 
     _onEndpointLost?.call(endpointId);
   }
 
-  void _handleOnPayloadReceived(Map<String, dynamic> args) {
+  void _handleOnPayloadReceived(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
     int type = args['type'] ?? PayloadType.none;
     Uint8List bytes = args['bytes'] ?? Uint8List(0);
@@ -295,7 +303,7 @@ class NearbyCommunicationImpl implements NearbyCommunication {
     _onPayloadReceived?.call(endpointId, payload);
   }
 
-  void _handleOnPayloadTransferUpdate(Map<String, dynamic> args) {
+  void _handleOnPayloadTransferUpdate(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
     int payloadId = args['payloadId'] ?? -1;
     int status = args['status'] ?? ConnectionStatus.error.index;

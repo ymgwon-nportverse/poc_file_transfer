@@ -4,12 +4,12 @@ import 'dart:typed_data';
 /// 에 따라 비슷하게 만든 interface.
 ///
 /// [flutter: nearby_connections](https://www.github.com:mannprerak2/nearby_connections) 를 reference 로 삼아 만듬.
-abstract interface class NearbyCommunication {
+abstract interface class Nearby {
   /// [startAdvertising] 을 통해 스스롤 광고 하고 있는 기기를 찾는 명령
   Future<void> startDiscovery(
     String userName,
     Strategy strategy, {
-    required String serviceId,
+    String serviceId = 'com.nportverse.poc',
     required OnEndpointFound onEndpointFound,
     required OnEndpointLost onEndpointLost,
   });
@@ -18,7 +18,7 @@ abstract interface class NearbyCommunication {
   Future<void> startAdvertising(
     String userName,
     Strategy strategy, {
-    required String serviceId,
+    String serviceId = 'com.nportverse.poc',
     required OnBandwidthChanged onBandwidthChanged,
     required OnConnectionInitiated onConnectionInitiated,
     required OnConnectionResult onConnectionResult,
@@ -161,16 +161,16 @@ enum PayloadType {
 ///
 /// [endPointName] 는 요청자의 userName.
 ///
-/// [authenticationToken] 는 연결 보안을 체크하기 위해 사용할 수 있 수 있고, 연결하는 두 기기의
+/// [authenticationDigits] 는 연결 보안을 체크하기 위해 사용할 수 있 수 있고, 연결하는 두 기기의
 /// token 값이 동일해야함.
 class ConnectionInfo {
   const ConnectionInfo(
     this.endpointName,
-    this.authenticationToken,
+    this.authenticationDigits,
     this.isIncomingConnection,
   );
 
-  final String endpointName, authenticationToken;
+  final String endpointName, authenticationDigits;
   final bool isIncomingConnection;
 }
 

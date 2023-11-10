@@ -22,12 +22,11 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
-const val SERVICE_ID = "flutter_nearby_connections"
+const val SERVICE_ID = "com.nportverse.poc"
 
-const val NEARBY_RUNNING = "nearby_running"
 const val METHOD_CHANNEL = "nearby_connections"
 
-class MainActivity : FlutterActivity() {
+class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
     private lateinit var channel: MethodChannel
 
     override fun configureFlutterEngine(
@@ -41,189 +40,193 @@ class MainActivity : FlutterActivity() {
                 METHOD_CHANNEL,
             )
 
-        channel.setMethodCallHandler { call: MethodCall, result: MethodChannel.Result ->
-            try {
-                // TODO: handle situations for each case
-                when (call.method) {
-                    "stopAdvertising" -> {
-                        Log.d("nearby_connections", "stopAdvertising")
-                        Nearby.getConnectionsClient((activity)!!).stopAdvertising()
-                        result.success(null)
-                    }
+        channel.setMethodCallHandler(this)
+    }
 
-                    "stopDiscovery" -> {
-                        Log.d("nearby_connections", "stopDiscovery")
-                        Nearby.getConnectionsClient((activity)!!).stopDiscovery()
-                        result.success(null)
-                    }
+    override fun onMethodCall(
+        call: MethodCall,
+        result: MethodChannel.Result,
+    ) {
+        try {
+            when (call.method) {
+                "stopAdvertising" -> {
+                    Log.d("nearby_connections", "stopAdvertising")
+                    Nearby.getConnectionsClient(this).stopAdvertising()
+                    result.success(null)
+                }
 
-                    "startAdvertising" -> {
-                        val userNickName = call.argument<Any>("userNickName") as String?
-                        val strategy = call.argument<Any>("strategy") as Int
-                        var serviceId = call.argument<Any>("serviceId") as String?
-                        assert(userNickName != null)
-                        if (serviceId == null || serviceId === "") {
-                            serviceId =
-                                SERVICE_ID
-                        }
-                        val advertisingOptions =
-                            AdvertisingOptions.Builder().setStrategy(getStrategy(strategy)).build()
-                        Nearby.getConnectionsClient((activity)!!).startAdvertising(
-                            (userNickName)!!,
-                            serviceId,
-                            advertConnectionLifecycleCallback,
-                            advertisingOptions,
-                        ).addOnSuccessListener(
-                            OnSuccessListener {
-                                Log.d("nearby_connections", "startAdvertising")
-                                result.success(true)
-                            },
-                        ).addOnFailureListener { e ->
+                "stopDiscovery" -> {
+                    Log.d("nearby_connections", "stopDiscovery")
+                    Nearby.getConnectionsClient(this).stopDiscovery()
+                    result.success(null)
+                }
+
+                "startAdvertising" -> {
+                    val userName = call.argument<Any>("userName") as String?
+                    val strategy = call.argument<Any>("strategy") as Int
+                    var serviceId = call.argument<Any>("serviceId") as String?
+                    assert(userName != null)
+                    if (serviceId == null || serviceId === "") {
+                        serviceId =
+                            SERVICE_ID
+                    }
+                    val advertisingOptions =
+                        AdvertisingOptions.Builder().setStrategy(getStrategy(strategy)).build()
+                    Nearby.getConnectionsClient(this).startAdvertising(
+                        (userName)!!,
+                        serviceId,
+                        advertiseConnectionLifecycleCallback,
+                        advertisingOptions,
+                    ).addOnSuccessListener(
+                        OnSuccessListener {
+                            Log.d("nearby_connections", "startAdvertising")
+                            Log.d("nearby_connections", "serviceId: $serviceId")
+                            result.success(true)
+                        },
+                    ).addOnFailureListener { e ->
+                        result.error(
+                            "Failure",
+                            e.message,
+                            null,
+                        )
+                    }
+                }
+
+                "startDiscovery" -> {
+                    val userName = call.argument<Any>("userName") as String?
+                    val strategy = call.argument<Any>("strategy") as Int
+                    var serviceId = call.argument<Any>("serviceId") as String?
+                    assert(userName != null)
+                    if (serviceId == null || serviceId === "") {
+                        serviceId =
+                            SERVICE_ID
+                    }
+                    val discoveryOptions =
+                        DiscoveryOptions.Builder().setStrategy(getStrategy(strategy)).build()
+                    Nearby.getConnectionsClient(this)
+                        .startDiscovery(serviceId, endpointDiscoveryCallback, discoveryOptions)
+                        .addOnSuccessListener {
+                            Log.d("nearby_connections", "startDiscovery")
+                            Log.d("nearby_connections", "serviceId: $serviceId")
+                            result.success(true)
+                        }.addOnFailureListener { e ->
                             result.error(
                                 "Failure",
                                 e.message,
                                 null,
                             )
                         }
-                    }
-
-                    "startDiscovery" -> {
-                        val userNickName = call.argument<Any>("userNickName") as String?
-                        val strategy = call.argument<Any>("strategy") as Int
-                        var serviceId = call.argument<Any>("serviceId") as String?
-                        assert(userNickName != null)
-                        if (serviceId == null || serviceId === "") {
-                            serviceId =
-                                SERVICE_ID
-                        }
-                        val discoveryOptions =
-                            DiscoveryOptions.Builder().setStrategy(getStrategy(strategy)).build()
-                        Nearby.getConnectionsClient((activity)!!)
-                            .startDiscovery(serviceId, endpointDiscoveryCallback, discoveryOptions)
-                            .addOnSuccessListener {
-                                Log.d("nearby_connections", "startDiscovery")
-                                result.success(true)
-                            }.addOnFailureListener { e ->
-                                result.error(
-                                    "Failure",
-                                    e.message,
-                                    null,
-                                )
-                            }
-                    }
-
-                    "stopAllEndpoints" -> {
-                        Log.d("nearby_connections", "stopAllEndpoints")
-                        Nearby.getConnectionsClient((activity)!!).stopAllEndpoints()
-                        result.success(null)
-                    }
-
-                    "disconnectFromEndpoint" -> {
-                        Log.d("nearby_connections", "disconnectFromEndpoint")
-                        val endpointId = call.argument<String>("endpointId")
-                        assert(endpointId != null)
-                        Nearby.getConnectionsClient((activity)!!)
-                            .disconnectFromEndpoint((endpointId)!!)
-                        result.success(null)
-                    }
-
-                    "requestConnection" -> {
-                        Log.d("nearby_connections", "requestConnection")
-                        val userNickName = call.argument<Any>("userNickName") as String?
-                        val endpointId = call.argument<Any>("endpointId") as String?
-                        assert(userNickName != null)
-                        assert(endpointId != null)
-                        Nearby.getConnectionsClient((activity)!!).requestConnection(
-                            (userNickName)!!,
-                            (endpointId)!!,
-                            discoverConnectionLifecycleCallback,
-                        ).addOnSuccessListener { result.success(true) }
-                            .addOnFailureListener { e -> result.error("Failure", e.message, null) }
-                    }
-
-                    "acceptConnection" -> {
-                        val endpointId = call.argument<Any>("endpointId") as String?
-                        assert(endpointId != null)
-                        Nearby.getConnectionsClient((activity)!!)
-                            .acceptConnection((endpointId)!!, payloadCallback)
-                            .addOnSuccessListener {
-                                Log.d("nearby_connections", "acceptConnection")
-                                result.success(true)
-                            }.addOnFailureListener { e ->
-                                result.error(
-                                    "Failure",
-                                    e.message,
-                                    null,
-                                )
-                            }
-                    }
-
-                    "rejectConnection" -> {
-                        val endpointId = call.argument<Any>("endpointId") as String?
-                        assert(endpointId != null)
-                        Nearby.getConnectionsClient((activity)!!).rejectConnection((endpointId)!!)
-                            .addOnSuccessListener {
-                                Log.d("nearby_connections", "rejectConnection")
-                                result.success(true)
-                            }.addOnFailureListener { e -> result.error("Failure", e.message, null) }
-                    }
-
-                    "sendPayload" -> {
-                        val endpointId = call.argument<Any>("endpointId") as String?
-                        val bytes = call.argument<ByteArray>("bytes")
-                        assert(endpointId != null)
-                        assert(bytes != null)
-                        Nearby.getConnectionsClient((activity)!!).sendPayload(
-                            (endpointId)!!,
-                            Payload.fromBytes(
-                                (bytes)!!,
-                            ),
-                        )
-                        Log.d("nearby_connections", "sentPayload")
-                        result.success(true)
-                    }
-
-                    "cancelPayload" -> {
-                        val payloadId = call.argument<Any>("payloadId") as String?
-                        assert(payloadId != null)
-                        Nearby.getConnectionsClient((activity)!!)
-                            .cancelPayload(payloadId!!.toLong())
-                        Log.d("nearby_connections", "cancelPayload")
-                        result.success(null)
-                    }
-
-                    else -> result.notImplemented()
                 }
-            } catch (e: IllegalArgumentException) {
-                // TODO: define argument error type
-                result.error("", e.message, null)
-            } catch (e: Exception) {
-                // TODO: define event processing exception
-                result.error("", e.message, null)
+
+                "stopAllEndpoints" -> {
+                    Log.d("nearby_connections", "stopAllEndpoints")
+                    Nearby.getConnectionsClient(this).stopAllEndpoints()
+                    result.success(null)
+                }
+
+                "disconnectFromEndpoint" -> {
+                    Log.d("nearby_connections", "disconnectFromEndpoint")
+                    val endpointId = call.argument<String>("endpointId")
+                    assert(endpointId != null)
+                    Nearby.getConnectionsClient(this)
+                        .disconnectFromEndpoint((endpointId)!!)
+                    result.success(null)
+                }
+
+                "requestConnection" -> {
+                    Log.d("nearby_connections", "requestConnection")
+                    val userName = call.argument<Any>("userName") as String?
+                    val endpointId = call.argument<Any>("endpointId") as String?
+                    assert(userName != null)
+                    assert(endpointId != null)
+                    Nearby.getConnectionsClient(this).requestConnection(
+                        (userName)!!,
+                        (endpointId)!!,
+                        discoveryConnectionLifecycleCallback,
+                    ).addOnSuccessListener { result.success(true) }
+                        .addOnFailureListener { e -> result.error("Failure", e.message, null) }
+                }
+
+                "acceptConnection" -> {
+                    val endpointId = call.argument<Any>("endpointId") as String?
+                    assert(endpointId != null)
+                    Nearby.getConnectionsClient(this)
+                        .acceptConnection((endpointId)!!, payloadCallback)
+                        .addOnSuccessListener {
+                            Log.d("nearby_connections", "acceptConnection")
+                            result.success(true)
+                        }.addOnFailureListener { e ->
+                            result.error(
+                                "Failure",
+                                e.message,
+                                null,
+                            )
+                        }
+                }
+
+                "rejectConnection" -> {
+                    val endpointId = call.argument<Any>("endpointId") as String?
+                    assert(endpointId != null)
+                    Nearby.getConnectionsClient(this).rejectConnection((endpointId)!!)
+                        .addOnSuccessListener {
+                            Log.d("nearby_connections", "rejectConnection")
+                            result.success(true)
+                        }.addOnFailureListener { e -> result.error("Failure", e.message, null) }
+                }
+
+                "sendPayload" -> {
+                    val endpointId = call.argument<Any>("endpointId") as String?
+                    val bytes = call.argument<ByteArray>("bytes")
+                    assert(endpointId != null)
+                    assert(bytes != null)
+                    Nearby.getConnectionsClient(this).sendPayload(
+                        (endpointId)!!,
+                        Payload.fromBytes(
+                            (bytes)!!,
+                        ),
+                    )
+                    Log.d("nearby_connections", "sentPayload")
+                    result.success(true)
+                }
+
+                "cancelPayload" -> {
+                    val payloadId = call.argument<Any>("payloadId") as String?
+                    assert(payloadId != null)
+                    Nearby.getConnectionsClient(this)
+                        .cancelPayload(payloadId!!.toLong())
+                    Log.d("nearby_connections", "cancelPayload")
+                    result.success(null)
+                }
+
+                else -> result.notImplemented()
             }
+        } catch (e: IllegalArgumentException) {
+            result.error("", e.message, null)
+        } catch (e: Exception) {
+            result.error("", e.message, null)
         }
     }
 
-    private val advertConnectionLifecycleCallback: ConnectionLifecycleCallback =
+    private val advertiseConnectionLifecycleCallback: ConnectionLifecycleCallback =
         object : ConnectionLifecycleCallback() {
             override fun onConnectionInitiated(
                 endpointId: String,
                 connectionInfo: ConnectionInfo,
             ) {
-                Log.d("nearby_connections", "ad.onConnectionInitiated")
+                Log.d("nearby_connections", "onAdvertiseConnectionInitiated")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
                 args["endpointName"] = connectionInfo.endpointName
-                args["authenticationToken"] = connectionInfo.authenticationToken
+                args["authenticationDigits"] = connectionInfo.authenticationDigits
                 args["isIncomingConnection"] = connectionInfo.isIncomingConnection
-                channel.invokeMethod("ad.onConnectionInitiated", args)
+                channel.invokeMethod("onAdvertiseConnectionInitiated", args)
             }
 
             override fun onConnectionResult(
                 endpointId: String,
                 connectionResolution: ConnectionResolution,
             ) {
-                Log.d("nearby_connections", "ad.onConnectionResult")
+                Log.d("nearby_connections", "onAdvertiseConnectionResult")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
                 var statusCode = -1
@@ -234,36 +237,37 @@ class MainActivity : FlutterActivity() {
                     else -> {}
                 }
                 args["statusCode"] = statusCode
-                channel.invokeMethod("ad.onConnectionResult", args)
+                channel.invokeMethod("onAdvertiseConnectionResult", args)
             }
 
             override fun onDisconnected(endpointId: String) {
-                Log.d("nearby_connections", "ad.onDisconnected")
+                Log.d("nearby_connections", "onAdvertiseDisconnected")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
-                channel.invokeMethod("ad.onDisconnected", args)
+                channel.invokeMethod("onAdvertiseDisconnected", args)
             }
         }
-    private val discoverConnectionLifecycleCallback: ConnectionLifecycleCallback =
+
+    private val discoveryConnectionLifecycleCallback: ConnectionLifecycleCallback =
         object : ConnectionLifecycleCallback() {
             override fun onConnectionInitiated(
                 endpointId: String,
                 connectionInfo: ConnectionInfo,
             ) {
-                Log.d("nearby_connections", "dis.onConnectionInitiated")
+                Log.d("nearby_connections", "onDiscoveryConnectionInitiated")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
                 args["endpointName"] = connectionInfo.endpointName
-                args["authenticationToken"] = connectionInfo.authenticationToken
+                args["authenticationDigits"] = connectionInfo.authenticationDigits
                 args["isIncomingConnection"] = connectionInfo.isIncomingConnection
-                channel.invokeMethod("dis.onConnectionInitiated", args)
+                channel.invokeMethod("onDiscoveryConnectionInitiated", args)
             }
 
             override fun onConnectionResult(
                 endpointId: String,
                 connectionResolution: ConnectionResolution,
             ) {
-                Log.d("nearby_connections", "dis.onConnectionResult")
+                Log.d("nearby_connections", "onDiscoveryConnectionResult")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
                 var statusCode = -1
@@ -274,16 +278,17 @@ class MainActivity : FlutterActivity() {
                     else -> {}
                 }
                 args["statusCode"] = statusCode
-                channel.invokeMethod("dis.onConnectionResult", args)
+                channel.invokeMethod("onDiscoveryConnectionResult", args)
             }
 
             override fun onDisconnected(endpointId: String) {
-                Log.d("nearby_connections", "dis.onDisconnected")
+                Log.d("nearby_connections", "onDiscoveryDisconnected")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
-                channel.invokeMethod("dis.onDisconnected", args)
+                channel.invokeMethod("onDiscoveryDisconnected", args)
             }
         }
+
     private val payloadCallback: PayloadCallback =
         object : PayloadCallback() {
             override fun onPayloadReceived(
@@ -324,6 +329,7 @@ class MainActivity : FlutterActivity() {
                 channel.invokeMethod("onPayloadTransferUpdate", args)
             }
         }
+
     private val endpointDiscoveryCallback: EndpointDiscoveryCallback =
         object : EndpointDiscoveryCallback() {
             override fun onEndpointFound(
@@ -335,14 +341,14 @@ class MainActivity : FlutterActivity() {
                 args["endpointId"] = endpointId
                 args["endpointName"] = discoveredEndpointInfo.endpointName
                 args["serviceId"] = discoveredEndpointInfo.serviceId
-                channel.invokeMethod("dis.onEndpointFound", args)
+                channel.invokeMethod("onEndpointFound", args)
             }
 
             override fun onEndpointLost(endpointId: String) {
                 Log.d("nearby_connections", "onEndpointLost")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
-                channel.invokeMethod("dis.onEndpointLost", args)
+                channel.invokeMethod("onEndpointLost", args)
             }
         }
 

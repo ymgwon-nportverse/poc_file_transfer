@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poc/src/nearby/application/nearby_communication.dart';
+import 'package:poc/src/nearby/application/service/nearby.dart';
 
 void main() {
   group(
