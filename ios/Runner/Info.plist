@@ -59,10 +59,18 @@
 
     <!-- Permission options for the `bluetooth` -->
     <key>NSBluetoothAlwaysUsageDescription</key>
-    <string>bluetooth</string>
+    <string>Our app uses bluetooth to find, connect and transfer data between different devices</string>
     <key>NSBluetoothPeripheralUsageDescription</key>
-    <string>bluetooth</string>
+    <string>Our app uses bluetooth to find, connect and transfer data between different devices</string>
 
+    <key>UIRequiresPersistentWiFi</key>
+    <true/>
+    <key>NSNearbyInteractionAllowOnceUsageDescription</key>
+    <true/>
 
+    <key>NSBonjourServices</key>
+    <array>
+    	<string>_307BEAB11028._tcp</string>
+    </array>
 </dict>
 </plist>
