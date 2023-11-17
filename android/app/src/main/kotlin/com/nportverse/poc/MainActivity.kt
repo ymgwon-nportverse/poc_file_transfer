@@ -21,6 +21,8 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import java.io.File
+import java.io.FileNotFoundException
 
 const val SERVICE_ID = "com.nportverse.poc"
 
@@ -34,11 +36,10 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
     ) {
         super.configureFlutterEngine(flutterEngine)
 
-        channel =
-            MethodChannel(
-                flutterEngine.dartExecutor.binaryMessenger,
-                METHOD_CHANNEL,
-            )
+        channel = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            METHOD_CHANNEL,
+        )
 
         channel.setMethodCallHandler(this)
     }
@@ -67,8 +68,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                     var serviceId = call.argument<Any>("serviceId") as String?
                     assert(userName != null)
                     if (serviceId == null || serviceId === "") {
-                        serviceId =
-                            SERVICE_ID
+                        serviceId = SERVICE_ID
                     }
                     val advertisingOptions =
                         AdvertisingOptions.Builder().setStrategy(getStrategy(strategy)).build()
@@ -98,8 +98,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                     var serviceId = call.argument<Any>("serviceId") as String?
                     assert(userName != null)
                     if (serviceId == null || serviceId === "") {
-                        serviceId =
-                            SERVICE_ID
+                        serviceId = SERVICE_ID
                     }
                     val discoveryOptions =
                         DiscoveryOptions.Builder().setStrategy(getStrategy(strategy)).build()
@@ -128,8 +127,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                     Log.d("nearby_connections", "disconnectFromEndpoint")
                     val endpointId = call.argument<String>("endpointId")
                     assert(endpointId != null)
-                    Nearby.getConnectionsClient(this)
-                        .disconnectFromEndpoint((endpointId)!!)
+                    Nearby.getConnectionsClient(this).disconnectFromEndpoint((endpointId)!!)
                     result.success(null)
                 }
 
@@ -151,8 +149,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                     val endpointId = call.argument<Any>("endpointId") as String?
                     assert(endpointId != null)
                     Nearby.getConnectionsClient(this)
-                        .acceptConnection((endpointId)!!, payloadCallback)
-                        .addOnSuccessListener {
+                        .acceptConnection((endpointId)!!, payloadCallback).addOnSuccessListener {
                             Log.d("nearby_connections", "acceptConnection")
                             result.success(true)
                         }.addOnFailureListener { e ->
@@ -176,14 +173,29 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
 
                 "sendPayload" -> {
                     val endpointId = call.argument<Any>("endpointId") as String?
+                    val filePath = call.argument<Any>("filePath") as String?
                     val bytes = call.argument<ByteArray>("bytes")
                     assert(endpointId != null)
-                    assert(bytes != null)
+                    assert(
+                        (bytes == null && filePath != null) || (filePath == null && bytes != null)
+                    )
+
+                    lateinit var payload: Payload
+                    try {
+                        if (filePath != null) {
+                            payload = Payload.fromFile(File(filePath))
+                        } else {
+                            Payload.fromBytes(bytes!!)
+                        }
+                    } catch (e: FileNotFoundException) {
+                        Log.e("nearby_connections", "File not found", e)
+                        result.error("Failure", e.message, null)
+                        return
+                    }
+
                     Nearby.getConnectionsClient(this).sendPayload(
                         (endpointId)!!,
-                        Payload.fromBytes(
-                            (bytes)!!,
-                        ),
+                        payload,
                     )
                     Log.d("nearby_connections", "sentPayload")
                     result.success(true)
@@ -192,8 +204,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                 "cancelPayload" -> {
                     val payloadId = call.argument<Any>("payloadId") as String?
                     assert(payloadId != null)
-                    Nearby.getConnectionsClient(this)
-                        .cancelPayload(payloadId!!.toLong())
+                    Nearby.getConnectionsClient(this).cancelPayload(payloadId!!.toLong())
                     Log.d("nearby_connections", "cancelPayload")
                     result.success(null)
                 }
@@ -289,46 +300,45 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
             }
         }
 
-    private val payloadCallback: PayloadCallback =
-        object : PayloadCallback() {
-            override fun onPayloadReceived(
-                endpointId: String,
-                payload: Payload,
-            ) {
-                Log.d("nearby_connections", "onPayloadReceived")
-                val args: MutableMap<String, Any?> = HashMap()
-                args["endpointId"] = endpointId
-                args["payloadId"] = payload.id
-                args["type"] = payload.type
-                if (payload.type == Payload.Type.BYTES) {
-                    val bytes = payload.asBytes()
-                    assert(bytes != null)
-                    args["bytes"] = bytes
-                } else if (payload.type == Payload.Type.FILE) {
-                    args["uri"] = payload.asFile()!!.asUri().toString()
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                        // This is deprecated and only available on Android 10 and below.
-                        args["filePath"] = payload.asFile()!!.asJavaFile()!!.absolutePath
-                    }
+    private val payloadCallback: PayloadCallback = object : PayloadCallback() {
+        override fun onPayloadReceived(
+            endpointId: String,
+            payload: Payload,
+        ) {
+            Log.d("nearby_connections", "onPayloadReceived")
+            val args: MutableMap<String, Any?> = HashMap()
+            args["endpointId"] = endpointId
+            args["payloadId"] = payload.id
+            args["type"] = payload.type
+            if (payload.type == Payload.Type.BYTES) {
+                val bytes = payload.asBytes()
+                assert(bytes != null)
+                args["bytes"] = bytes
+            } else if (payload.type == Payload.Type.FILE) {
+                args["uri"] = payload.asFile()!!.asUri().toString()
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                    // This is deprecated and only available on Android 10 and below.
+                    args["filePath"] = payload.asFile()!!.asJavaFile()!!.absolutePath
                 }
-                channel.invokeMethod("onPayloadReceived", args)
             }
-
-            override fun onPayloadTransferUpdate(
-                endpointId: String,
-                payloadTransferUpdate: PayloadTransferUpdate,
-            ) {
-                // required for files and streams
-                Log.d("nearby_connections", "onPayloadTransferUpdate")
-                val args: MutableMap<String, Any> = HashMap()
-                args["endpointId"] = endpointId
-                args["payloadId"] = payloadTransferUpdate.payloadId
-                args["status"] = payloadTransferUpdate.status
-                args["bytesTransferred"] = payloadTransferUpdate.bytesTransferred
-                args["totalBytes"] = payloadTransferUpdate.totalBytes
-                channel.invokeMethod("onPayloadTransferUpdate", args)
-            }
+            channel.invokeMethod("onPayloadReceived", args)
         }
+
+        override fun onPayloadTransferUpdate(
+            endpointId: String,
+            payloadTransferUpdate: PayloadTransferUpdate,
+        ) {
+            // required for files and streams
+            Log.d("nearby_connections", "onPayloadTransferUpdate")
+            val args: MutableMap<String, Any> = HashMap()
+            args["endpointId"] = endpointId
+            args["payloadId"] = payloadTransferUpdate.payloadId
+            args["status"] = payloadTransferUpdate.status
+            args["bytesTransferred"] = payloadTransferUpdate.bytesTransferred
+            args["totalBytes"] = payloadTransferUpdate.totalBytes
+            channel.invokeMethod("onPayloadTransferUpdate", args)
+        }
+    }
 
     private val endpointDiscoveryCallback: EndpointDiscoveryCallback =
         object : EndpointDiscoveryCallback() {
