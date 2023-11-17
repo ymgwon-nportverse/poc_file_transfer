@@ -5,5 +5,5 @@
 /// 있음. 생각나는대로 수정할 예정.
 abstract interface class NearbyPreconditionChecker {
   Future<bool> isSatisfied();
-  Future<void> satisfy();
+  Future<void> makeItSatisfied();
 }

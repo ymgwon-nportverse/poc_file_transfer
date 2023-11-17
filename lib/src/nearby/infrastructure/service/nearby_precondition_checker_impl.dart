@@ -109,7 +109,7 @@ class NearbyPreconditionCheckerImpl implements NearbyPreconditionChecker {
   }
 
   @override
-  Future<void> satisfy() async {
+  Future<void> makeItSatisfied() async {
     // step 0. permission 초기화 되어있지 않으면 초기화
     _permissions ??= await _initializePermissions();
 

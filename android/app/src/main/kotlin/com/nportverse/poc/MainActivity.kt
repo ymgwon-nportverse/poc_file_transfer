@@ -173,17 +173,17 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
 
                 "sendPayload" -> {
                     val endpointId = call.argument<Any>("endpointId") as String?
-                    val filePath = call.argument<Any>("filePath") as String?
-                    val bytes = call.argument<ByteArray>("bytes")
+                    val rawPayload = call.argument<Any>("payload") as Map<String, Any>
+                    val filePath = rawPayload["filePath"] as String?
+                    val bytes = rawPayload["bytes"] as ByteArray
                     assert(endpointId != null)
                     assert(
-                        (bytes == null && filePath != null) || (filePath == null && bytes != null)
+                        (filePath != null) xor (bytes != null),
                     )
 
-                    lateinit var payload: Payload
-                    try {
+                    val payload = try {
                         if (filePath != null) {
-                            payload = Payload.fromFile(File(filePath))
+                            Payload.fromFile(File(filePath))
                         } else {
                             Payload.fromBytes(bytes!!)
                         }
