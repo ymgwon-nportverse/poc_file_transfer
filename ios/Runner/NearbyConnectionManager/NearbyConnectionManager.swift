@@ -96,10 +96,10 @@ class NearbyConnectionManager{
         let token = connectionManager.send(Constants.bytePayload.data(using: .utf8)!, to: endpointIDs, id: payloadID)
         let payload = Payload(
             id: payloadID,
-            type: .bytes,
-            status: .inProgress(Progress()),
-            isIncoming: false,
-            cancellationToken: token
+            type: .bytes
+          //  status: .inProgress(Progress()),
+         //   isIncoming: false,
+       //     cancellationToken: token
         )
         for endpointID in endpointIDs {
             guard let index = connections.firstIndex(where: { $0.endpointID == endpointID }) else {

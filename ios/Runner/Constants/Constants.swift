@@ -13,12 +13,14 @@ import NearbyConnections
 
 
 class Constants {
+    static let methodChannelName = "nearby_connections"
+    
     static let serviceId = "com.nportverse.poc"
-    static let defaultStrategy = Strategy.star
+    static let defaultStrategy = Strategy.pointToPoint
     static let defaultAdvertisingState = false
     static let defaultDiscoveryState = false
     static let bytePayload = "hello world"
-    
+
 #if os(iOS) || os(watchOS) || os(tvOS)
     static let defaultEndpointName = UIDevice.current.name
 #elseif os(macOS)
@@ -26,4 +28,30 @@ class Constants {
 #else
     static let defaultEndpointName = "Unknown Device"
 #endif
+    
+    // method call 부분 ( flutter -> ios)
+    static let startDiscovery = "startDiscovery"
+    static let startAdvertising = "startAdvertising"
+    static let stopDiscovery = "stopDiscovery"
+    static let stopAdvertising = "stopAdvertising"
+    static let stopAllEndpoints = "stopAllEndpoints"
+    static let disconnectFromEndpoint = "disconnectFromEndpoint"
+    static let acceptConnection = "acceptConnection"
+    static let requestConnection = "requestConnection"
+    static let rejectConnection = "rejectConnection"
+    static let sendPayload = "sendPayload"
+    static let cancelPayload = "cancelPayload"
+    
+    
+    // invokeMethod call 부분 ( ios -> flutter )
+    static let  onAdvertiseConnectionInitiated  = "onAdvertiseConnectionInitiated"
+    static let  onAdvertiseConnectionResult  = "onAdvertiseConnectionResult"
+    static let  onAdvertiseDisconnected  = "onAdvertiseDisconnected"
+    static let  onDiscoveryConnectionInitiated  = "onDiscoveryConnectionInitiated"
+    static let  onDiscoveryConnectionResult  = "onDiscoveryConnectionResult"
+    static let  onDiscoveryDisconnected  = "onDiscoveryDisconnected"
+    static let  onEndpointFound  = "onEndpointFound"
+    static let  onEndpointLost  = "onEndpointLost"
+    static let  onPayloadReceived  = "onPayloadReceived"
+    static let  onPayloadTransferUpdate  = "onPayloadTransferUpdate"
 }

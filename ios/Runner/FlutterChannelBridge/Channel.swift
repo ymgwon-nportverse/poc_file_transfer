@@ -7,19 +7,37 @@
 
 import Foundation
 import Flutter
-// 메소드 채널
-// 이벤트 채널 추가 
-// private var eventChannel: FlutterEventChannel?
-// private let eventHandler = EventHandler()
+//import Swinject
+import UIKit
 
-//eventChannel = FlutterEventChannel(name: "nportverse_nearby_event_channel", //binaryMessenger: controller.binaryMessenger)
-//eventChannel?.setStreamHandler(eventHandler)
 
-class Flutterchannel : FlutterAppDelegate {
- //   var controller : FlutterViewController
-    //static let test : FlutterAppDelegate = self.FlutterAppDelegate
-
-  //  static let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
-  
-//    static let methodChannel = FlutterMethodChannel(name: "nearby_connections", binaryMessenger: controller.binaryMessenger)
+public class FlutterPlatformChannel{
+    public let channelName: String
+    public let flutterWindow: UIWindow!
+    
+    public init(channelName: String,flutterWindow: UIWindow!) {
+        self.flutterWindow = flutterWindow
+        self.channelName = channelName
+   }
+    
+   func flutterMethodChannel()-> FlutterMethodChannel {
+        let controller : FlutterViewController = flutterWindow?.rootViewController as! FlutterViewController
+        let result = FlutterMethodChannel(name: channelName, binaryMessenger: controller.binaryMessenger)
+        return  result
+    }
+    
+    
+    func FlutterMethodCallBack (){
+        self.flutterMethodChannel().setMethodCallHandler({
+                (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+                print("call.method => \(call.method)")
+            })
+    
+    }
+    
+    func FlutterInvokeMethod (){
+       // self.flutterMethodChannel().invokeMethod(<#T##method: String##String#>, arguments: <#T##Any?#>)
+    
+    }
+    
 }
