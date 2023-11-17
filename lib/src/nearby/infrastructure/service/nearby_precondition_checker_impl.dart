@@ -1,44 +1,80 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:poc/src/nearby/application/service/nearby_precondition_checker.dart';
 
+/// [NearbyPreconditionChecker] 의 구현 클래스
+///
+/// - 설명은 [NearbyPreconditionChecker] 을 참고.
+/// - Layering Architecture 의 원칙에 따라, 애플리케이션의 로직(e.g. 데이터를 가져와라)은
+///   application layer 에 정의하고, 실제 구현을 infrastructure layer 에서 정의.
+/// - 개발자에 따라 이 layer를 `data layer` 라고 하는 경우도 있으니 참고.
 class NearbyPreconditionCheckerImpl implements NearbyPreconditionChecker {
+  NearbyPreconditionCheckerImpl(this._deviceInfo);
+
+  static const kAndroid12MinVersion = 31;
+  static const kAndroid13Version = 33;
+
+  final DeviceInfoPlugin _deviceInfo;
+
+  // Android 기기 정보 caching 을 위한 객체
+  AndroidDeviceInfo? _androidDeviceInfo;
+
   /// Nearby Connections를 사용하기 위해 필요한 권한들
-  ///
-  /// 플랫폼 마다 Permission 설정값이 달라 이를 처리해주기 위한 getter
-  List<Permission> get _permissions {
-    if (Platform.isAndroid) {
-      return [..._commonPermission, ..._androidPermissions];
-    } else if (Platform.isIOS) {
-      return _commonPermission;
-    } else {
-      throw UnimplementedError();
-    }
-  }
+  List<Permission>? _permissions;
 
-  /// Nearby Connections를 사용하기 위해 공통적으로 필요한 권한들
+  /// Android/iOS 에서 공통적으로 필요한 권한임
   // TODO: iOS 에서 bluetooth 를 정말로 사용하는지 확인이 필요함
-  final _commonPermission = <Permission>[
-    // bluetooth 관련
-    Permission.bluetooth,
-
+  final _commonPermissions = <Permission>[
     // 위치 관련
     Permission.location,
+    // bluetooth 관련
+    Permission.bluetooth,
   ];
 
-  /// Nearby Connections를 사용하기 위해 안드로이드에서만 필요한 권한들
-  final _androidPermissions = <Permission>[
-    // bluetooth 관련
+  /// Android12 버전 부터 필요한 권한들
+  final _androidFrom12Permissions = <Permission>[
+    /// bluetooth 관련
     Permission.bluetoothAdvertise,
     Permission.bluetoothConnect,
     Permission.bluetoothScan,
+  ];
 
-    // Nearby Wifi 관련 (Android에만 해당하는 것으로 추론)
+  /// Android13 버전 부터 필요한 권한들
+  final _androidFrom13Permissions = <Permission>[
+    /// Nearby Wifi 관련 (Android에만 해당하는 것으로 추론)
     Permission.nearbyWifiDevices,
   ];
 
-  /// [NearbyCommunicationImpl] 을 사용하기 위한 조건을 만족하는지 확인.
+  Future<List<Permission>> _initializePermissions() async {
+    // iOS 인경우
+    if (Platform.isIOS) {
+      return [..._commonPermissions];
+    }
+
+    if (!Platform.isAndroid) {
+      throw UnimplementedError();
+    }
+
+    _androidDeviceInfo ??= await _deviceInfo.androidInfo;
+
+    final permissions = <Permission>[
+      ..._commonPermissions,
+    ];
+
+    if (_androidDeviceInfo!.version.sdkInt >= kAndroid12MinVersion) {
+      permissions.addAll(_androidFrom12Permissions);
+    }
+
+    if (_androidDeviceInfo!.version.sdkInt >= kAndroid13Version) {
+      permissions.addAll(_androidFrom13Permissions);
+    }
+
+    return permissions;
+  }
+
+  /// [NearbyImpl] 을 사용하기 위한 조건을 만족하는지 확인.
   ///
   /// **REF**
   ///
@@ -53,8 +89,11 @@ class NearbyPreconditionCheckerImpl implements NearbyPreconditionChecker {
   /// 대안으로 사용자에게 wifi 연결 확인하라고 알려주는 것이 좋을듯 함.
   @override
   Future<bool> isSatisfied() async {
+    // step 0. permission 초기화 되어있지 않으면 초기화
+    _permissions ??= await _initializePermissions();
+
     // step 1. 필요 권한 여부 확인
-    for (final permission in _permissions) {
+    for (final permission in _permissions!) {
       final isGranted = await permission.isGranted;
       if (!isGranted) {
         return false;
@@ -71,7 +110,10 @@ class NearbyPreconditionCheckerImpl implements NearbyPreconditionChecker {
 
   @override
   Future<void> satisfy() async {
-    for (final permission in _permissions) {
+    // step 0. permission 초기화 되어있지 않으면 초기화
+    _permissions ??= await _initializePermissions();
+
+    for (final permission in _permissions!) {
       await permission.request();
     }
   }

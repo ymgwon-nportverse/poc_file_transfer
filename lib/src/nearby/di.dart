@@ -22,7 +22,9 @@ final nearbyProvider = Provider<Nearby>(
 );
 
 final nearbyConditionCheckerProvider = Provider<NearbyPreconditionChecker>(
-  (ref) => NearbyPreconditionCheckerImpl(),
+  (ref) => NearbyPreconditionCheckerImpl(
+    ref.watch(deviceInfoProvider),
+  ),
 );
 
 final infoFetcherProvider = Provider<UserInfoFetcher>(
