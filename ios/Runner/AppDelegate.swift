@@ -14,9 +14,9 @@ import NearbyConnections
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         
-        let flutterPlatformChannel: FlutterPlatformChannel = FlutterPlatformChannel(channelName: Constants.methodChannelName, flutterWindow: window)
+        let flutterPlatformChannel: FlutterPlatformChannel = FlutterPlatformChannel(name: Constants.methodChannelName, flutterWindow: window)
         
-        flutterPlatformChannel.FlutterMethodCallBack()
+        flutterPlatformChannel.setMethodcallHandler()
         
         GeneratedPluginRegistrant.register(with: self)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
