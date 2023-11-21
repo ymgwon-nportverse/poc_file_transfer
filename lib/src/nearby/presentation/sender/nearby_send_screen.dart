@@ -3,14 +3,14 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:poc/src/core/presentation/extensions.dart';
+import 'package:poc/src/core/presentation/extensions/extensions.dart';
 import 'package:poc/src/nearby/application/bloc/sender/nearby_sender_event.dart';
 import 'package:poc/src/nearby/application/bloc/sender/nearby_sender_state.dart';
 
 import 'package:poc/src/nearby/di.dart';
-import 'package:poc/src/nearby/presentation/sender/nearby_send_data_section.dart';
-import 'package:poc/src/nearby/presentation/sender/nearby_send_receivers_section.dart';
-import 'package:poc/src/nearby/presentation/sender/state/ui_send_property.dart';
+import 'package:poc/src/nearby/presentation/sender/ui_state/ui_send_property.dart';
+import 'package:poc/src/nearby/presentation/sender/widgets/sections/nearby_send_data_section.dart';
+import 'package:poc/src/nearby/presentation/sender/widgets/sections/nearby_send_receivers_section.dart';
 
 class NearbySendScreen extends ConsumerWidget {
   const NearbySendScreen({super.key});
@@ -41,7 +41,7 @@ class NearbySendScreen extends ConsumerWidget {
             const SizedBox(height: 4),
             ElevatedButton.icon(
               onPressed: ref.watch(uiSendPropertyProvider).isReadySubmit
-                  ? () => _showBottomSheetForSend(context, ref)
+                  ? () => context.navigator.pushNamed('/nearby/send/confirm')
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: context.theme.colorScheme.onPrimaryContainer,
@@ -64,159 +64,75 @@ class NearbySendScreen extends ConsumerWidget {
           case NearbySenderStateNone():
             log('here goes none');
           case NearbySenderStateDiscovering():
-            log('here goes discovering');
-          case NearbySenderStateRequesting():
-            log('here goes requesting');
-          case NearbySenderStateConnected():
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              barrierColor: Colors.black87,
-              builder: (context) {
-                return Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Text(
-                      '데이터 보내는 중...',
-                      style: context.textTheme.displaySmall?.copyWith(
-                        color: Colors.white,
-                      ),
-                    )
-                  ],
+
+            /// 이 case 는 전송하기 위해서 target을 설정 하였는데 advertising 목록에서
+            /// 졌을 때 UI 처리를 위한 로직임
+            if (!current.devices
+                .contains(ref.watch(uiSendPropertyProvider).selectedDevice)) {
+              bool didPop = false;
+              context.navigator.popUntil((routes) {
+                final canPop = routes.settings.name != '/nearby/send';
+                if (canPop) {
+                  didPop = true;
+                }
+                return !canPop;
+              });
+
+              if (didPop) {
+                context.navigator.pushNamed(
+                  '/nearby/send/interrupt',
+                  arguments: {
+                    'deviceName':
+                        ref.watch(uiSendPropertyProvider).selectedDevice!.name
+                  },
                 );
-              },
+              }
+
+              ref.read(uiSendPropertyProvider).setDevice(null);
+            }
+
+          case NearbySenderStateRequesting():
+            context.navigator
+                .popUntil((routes) => routes.settings.name == '/nearby/send');
+            context.navigator.pushNamed(
+              '/nearby/send/process',
+              arguments: {'message': '응답 대기중...'},
+            );
+          case NearbySenderStateConnected():
+            context.navigator
+                .popUntil((routes) => routes.settings.name == '/nearby/send');
+
+            context.navigator.pushNamed(
+              '/nearby/send/process',
+              arguments: {'message': '데이터 전송중...'},
             );
 
-            ref
-                .read(nearbySenderBlocProvider.notifier)
-                .mapEventToState(NearbySenderEvent.sendPayload(
-                  Uint8List.fromList(
-                      ref.read(uiSendPropertyProvider).selectedData!.codeUnits),
-                ));
+            ref.read(nearbySenderBlocProvider.notifier).mapEventToState(
+                  NearbySenderEvent.sendPayload(
+                    Uint8List.fromList(ref
+                        .read(uiSendPropertyProvider)
+                        .selectedData!
+                        .codeUnits),
+                  ),
+                );
 
           case NearbySenderStateRejected():
-            context.showCustomDialog(
-              builder: (context) {
-                return Column(
-                  children: [
-                    Text(
-                      '전송 거절',
-                      style: context.textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 12),
-                    const Text('상대방이 전송을 거절하였습니다.'),
-                    const Spacer(),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: context.navigator.pop,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              context.theme.colorScheme.onPrimaryContainer,
-                          foregroundColor: context.theme.colorScheme.onPrimary,
-                        ),
-                        child: const Text('확인'),
+            context.navigator
+                .popUntil((routes) => routes.settings.name == '/nearby/send');
+            context.navigator
+                .pushNamed('/nearby/send/reject') //
+                .then(
+                  (_) => ref
+                      .read(nearbySenderBlocProvider.notifier)
+                      .mapEventToState(
+                        const NearbySenderEvent.recoverFromRejection(),
                       ),
-                    ),
-                  ],
                 );
-              },
-            ).then((_) => ref
-                .read(nearbySenderBlocProvider.notifier)
-                .mapEventToState(
-                    const NearbySenderEvent.recoverFromRejection()));
           case NearbySenderStateFailed():
-            log(current.message);
-            log('here goes failed');
+          // TODO: Handle this case.
           case NearbySenderStateSuccess():
           // TODO: Handle this case.
         }
-      },
-    );
-  }
-
-  // TODO: 보내려고 pop up 이 떴는데, onEndpointLost 가 발생하면 어떻게 처리할지 고민 필요
-  //       route path 를 사용하면 되긴 함
-  void _showBottomSheetForSend(BuildContext context, WidgetRef ref) {
-    context.showOneThirdBottomSheet(
-      builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'To',
-                style: context.textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                ref.watch(uiSendPropertyProvider).selectedDevice?.name ??
-                    'something went wrong',
-                style: context.textTheme.bodyLarge,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Data',
-                style: context.textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                ref.watch(uiSendPropertyProvider).selectedData ??
-                    'something went wrong',
-                style: context.textTheme.bodyLarge,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const Spacer(),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: context.navigator.pop,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            context.theme.colorScheme.primaryContainer,
-                        foregroundColor: context.theme.colorScheme.primary,
-                      ),
-                      icon: const Icon(Icons.cancel),
-                      label: const Text('취소'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        context.navigator.pop();
-                        ref
-                            .read(nearbySenderBlocProvider.notifier)
-                            .mapEventToState(
-                              NearbySenderEvent.requestConnection(
-                                ref
-                                    .watch(uiSendPropertyProvider)
-                                    .selectedDevice!
-                                    .id,
-                                ref
-                                    .watch(uiSendPropertyProvider)
-                                    .selectedDevice!
-                                    .name,
-                                ref.watch(uiSendPropertyProvider).selectedData!,
-                              ),
-                            );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            context.theme.colorScheme.onPrimaryContainer,
-                        foregroundColor: context.theme.colorScheme.onPrimary,
-                      ),
-                      icon: const Icon(Icons.send),
-                      label: const Text('보내기'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
       },
     );
   }

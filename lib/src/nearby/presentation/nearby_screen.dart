@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:poc/src/core/presentation/extensions.dart';
+import 'package:poc/src/core/presentation/extensions/extensions.dart';
 import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_event.dart';
 import 'package:poc/src/nearby/application/bloc/sender/nearby_sender_event.dart';
 import 'package:poc/src/nearby/di.dart';
-import 'package:poc/src/nearby/presentation/receiver/nearby_receive_screen.dart';
-import 'package:poc/src/nearby/presentation/sender/nearby_send_screen.dart';
 
 /// 코드 작성자는 가장 큰 화면 단위(e.g. 전체를 차지하는 화면)을 부를 때, Screen 이라 명명함
 ///
@@ -32,7 +30,7 @@ class NearbyScreen extends ConsumerWidget {
             ElevatedButton.icon(
               onPressed: () => _routeTo(
                 context,
-                const NearbySendScreen(),
+                'send',
                 onPush: () => ref
                     .read(nearbySenderBlocProvider.notifier)
                     .mapEventToState(const NearbySenderEvent.search()),
@@ -46,7 +44,7 @@ class NearbyScreen extends ConsumerWidget {
             ElevatedButton.icon(
               onPressed: () => _routeTo(
                 context,
-                const NearbyReceiveScreen(),
+                'receive',
                 onPush: () => ref
                     .read(nearbyReceiverBlocProvider.notifier)
                     .mapEventToState(const NearbyReceiverEvent.advertise()),
@@ -70,17 +68,11 @@ class NearbyScreen extends ConsumerWidget {
   /// 때문에 오류방지하기 위해 stack에서 돌아왔을때 처리
   void _routeTo(
     BuildContext context,
-    Widget screen, {
+    String path, {
     required VoidCallback onPush,
     required VoidCallback onReturn,
   }) {
-    context.navigator
-        .push(
-          MaterialPageRoute(
-            builder: (_) => screen,
-          ),
-        )
-        .then(
+    context.navigator.pushNamed('/nearby/$path').then(
           // 다시 이 화면으로 돌아왔을 때 callback
           (_) => onReturn.call(),
         );

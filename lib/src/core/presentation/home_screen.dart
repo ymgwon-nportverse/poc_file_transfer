@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:poc/src/core/presentation/extensions.dart';
-import 'package:poc/src/nearby/presentation/nearby_screen.dart';
+import 'package:poc/src/core/presentation/extensions/extensions.dart';
 
 /// 코드 작성자는 가장 큰 화면 단위(e.g. 전체를 차지하는 화면)을 부를 때, Screen 이라 명명함
 ///
@@ -22,11 +21,7 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () => context.navigator.push(
-                MaterialPageRoute(
-                  builder: (context) => const NearbyScreen(),
-                ),
-              ),
+              onPressed: () => context.navigator.pushNamed('/nearby'),
               child: const Text('Nearby Example Screen'),
             )
           ],

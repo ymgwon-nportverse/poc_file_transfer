@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:poc/src/core/presentation/extensions.dart';
+import 'package:poc/src/core/presentation/extensions/extensions.dart';
 import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_event.dart';
 import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_state.dart';
 import 'package:poc/src/nearby/di.dart';
@@ -47,167 +47,61 @@ class NearbyReceiveScreen extends ConsumerWidget {
             final userName = concatenatedName.split('|')[0];
             final dataName = concatenatedName.split('|')[1];
 
-            context.showOneThirdBottomSheet(
-              builder: (context) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      'From',
-                      style: context.textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      userName,
-                      style: context.textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 18),
-                    Text(
-                      'Data',
-                      style: context.textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      dataName,
-                      style: context.textTheme.bodyLarge,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () => context.navigator.pop(false),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  context.theme.colorScheme.onPrimaryContainer,
-                              foregroundColor:
-                                  context.theme.colorScheme.onPrimary,
-                            ),
-                            icon: const Icon(Icons.cancel),
-                            label: const Text('취소'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () => context.navigator.pop(true),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  context.theme.colorScheme.primaryContainer,
-                              foregroundColor:
-                                  context.theme.colorScheme.primary,
-                            ),
-                            icon: const Icon(Icons.check_circle),
-                            label: const Text('확인'),
-                          ),
-                        )
-                      ],
-                    ),
-                  ],
-                );
+            context.navigator.pushNamed<bool>(
+              '/nearby/receive/confirm',
+              arguments: {
+                'userName': userName,
+                'dataName': dataName,
               },
             ).then(
               (isAccepted) {
-                if (isAccepted == null) {
+                /// 거절 버튼을 누른 것이 아니라, 창을 닫은 경우에도 거절로 처리하는 것 주의
+                if (isAccepted == null || !isAccepted) {
                   ref.read(nearbyReceiverBlocProvider.notifier).mapEventToState(
                         NearbyReceiverEvent.rejectRequest(current.endpointId),
                       );
                   return;
-                }
-
-                if (isAccepted) {
-                  ref.read(nearbyReceiverBlocProvider.notifier).mapEventToState(
-                        NearbyReceiverEvent.acceptRequest(current.endpointId),
-                      );
                 } else {
                   ref.read(nearbyReceiverBlocProvider.notifier).mapEventToState(
-                        NearbyReceiverEvent.rejectRequest(current.endpointId),
+                        NearbyReceiverEvent.acceptRequest(current.endpointId),
                       );
                 }
               },
             );
           case NearbyReceiverStateConnected() || NearbyReceiverStateReceiving():
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              barrierColor: Colors.black87,
-              builder: (context) {
-                return Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Text(
-                      current is NearbyReceiverStateConnected
-                          ? '연결중...'
-                          : '데이터 받는중...',
-                      style: context.textTheme.displaySmall?.copyWith(
-                        color: Colors.white,
-                      ),
-                    )
-                  ],
-                );
+            context.navigator
+                .popUntil((route) => route.settings.name == '/nearby/receive');
+            context.navigator.pushNamed(
+              '/nearby/receive/process',
+              arguments: {
+                'message': current is NearbyReceiverStateConnected
+                    ? '연결중...'
+                    : '데이터 받는중...',
               },
             );
-
           case NearbyReceiverStateSuccess():
-            context.showCustomDialog(
-              builder: (context) {
-                return Column(
-                  children: [
-                    Text(
-                      '전송 성공',
-                      style: context.textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 12),
-                    const Text('데이터를 성공적으로 받았습니다!'),
-                    const SizedBox(height: 12),
-                    Text('데이터: ${current.dataName}'),
-                    const Spacer(),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: context.navigator.pop,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              context.theme.colorScheme.onPrimaryContainer,
-                          foregroundColor: context.theme.colorScheme.onPrimary,
-                        ),
-                        child: const Text('확인'),
-                      ),
-                    ),
-                  ],
-                );
+            context.navigator
+                .popUntil((route) => route.settings.name == '/nearby/receive');
+            context.navigator.pushNamed(
+              '/nearby/receive/success',
+              arguments: {
+                'dataName': current.dataName,
               },
+            ).then(
+              (_) => context.navigator
+                  .popUntil((route) => route.settings.name == '/nearby'),
             );
           case NearbyReceiverStateFailed():
-            context.showCustomDialog(
-              builder: (context) {
-                return Column(
-                  children: [
-                    Text(
-                      '전송 실패',
-                      style: context.textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 12),
-                    const Text('데이터 수신에 실패했습니다.\n다시 시도해주세요.'),
-                    const Spacer(),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: context.navigator.pop,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              context.theme.colorScheme.onPrimaryContainer,
-                          foregroundColor: context.theme.colorScheme.onPrimary,
-                        ),
-                        child: const Text('확인'),
-                      ),
-                    ),
-                  ],
+            context.navigator
+                .popUntil((route) => route.settings.name == '/nearby/receive');
+            context.navigator
+                .pushNamed(
+                  '/nearby/receive/failure',
+                )
+                .then(
+                  (_) => context.navigator
+                      .popUntil((route) => route.settings.name == '/nearby'),
                 );
-              },
-            );
           default:
             break;
         }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:poc/src/core/presentation/extensions.dart';
+import 'package:poc/src/core/presentation/extensions/extensions.dart';
 import 'package:poc/src/nearby/di.dart';
-import 'package:poc/src/nearby/presentation/sender/state/ui_send_property.dart';
+import 'package:poc/src/nearby/presentation/sender/ui_state/ui_send_property.dart';
 
 class NearbySendDataSection extends ConsumerWidget {
   const NearbySendDataSection({super.key});
@@ -28,31 +28,7 @@ class NearbySendDataSection extends ConsumerWidget {
           children: [
             TextButton(
               onPressed: () {
-                // TODO: 진짜 데이터 받아오는 로직 추가하기
-                context.showCustomDialog(
-                  builder: (context) {
-                    return Column(
-                      children: [
-                        Text(
-                          '구현 중',
-                          style: context.textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          '아직까지 구현되지 않았습니다.',
-                        ),
-                        const Spacer(),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: context.navigator.pop,
-                            child: const Text('닫기'),
-                          ),
-                        )
-                      ],
-                    );
-                  },
-                );
+                context.navigator.pushNamed('/nearby/send/remote');
               },
               child: const Text('서버 데이터 업데이트'),
             ),

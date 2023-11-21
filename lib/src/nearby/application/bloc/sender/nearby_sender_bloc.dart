@@ -126,7 +126,7 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
     // _transferredData = String.fromCharCodes(bytes!);
 
     _nearby.sendPayload(
-      Payload.send(
+      Payload.forSend(
         bytes: bytes,
         filePath: filePath,
       ),

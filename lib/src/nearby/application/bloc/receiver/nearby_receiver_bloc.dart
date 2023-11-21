@@ -136,8 +136,10 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
       case ConnectionStatus.connected:
         _nearby.stopAdvertising();
         state = const NearbyReceiverState.connected();
-      default:
+      case ConnectionStatus.error:
         state = const NearbyReceiverState.failed('connection error');
+      case ConnectionStatus.rejected:
+        break;
     }
   }
 

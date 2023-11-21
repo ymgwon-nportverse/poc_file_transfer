@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:poc/src/core/presentation/extensions.dart';
+import 'package:poc/src/core/presentation/extensions/extensions.dart';
 import 'package:poc/src/nearby/application/bloc/sender/nearby_sender_state.dart';
 import 'package:poc/src/nearby/di.dart';
-import 'package:poc/src/nearby/presentation/sender/state/ui_send_property.dart';
+import 'package:poc/src/nearby/presentation/sender/ui_state/ui_send_property.dart';
 
 class NearbySendReceiversSection extends ConsumerWidget {
   const NearbySendReceiversSection({super.key});

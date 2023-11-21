@@ -206,7 +206,7 @@ class Payload {
   /// sender는 이것만 사용하면 됨
   /// - id 및 type 은 보낼 때 사용되지 않고, Nearby Connections API 가
   ///   생성해서 receiver 에게 전달하기 때문
-  factory Payload.send({
+  factory Payload.forSend({
     Uint8List? bytes,
     String? filePath,
   }) =>
