@@ -13,7 +13,7 @@ void main() {
           // arrange
 
           // act
-          assertCondition() => Payload(id: 0);
+          assertCondition() => Payload.forSend();
 
           // assert
           expect(assertCondition, throwsA(const TypeMatcher<AssertionError>()));
@@ -26,8 +26,7 @@ void main() {
           // arrange
 
           // act
-          assertCondition() => Payload(
-                id: 0,
+          assertCondition() => Payload.forSend(
                 filePath: '/path/to/file',
                 bytes: Uint8List(0),
               );
@@ -40,8 +39,7 @@ void main() {
       test(
         'bytes 값만 있을 때는 인스턴스 생성해야 함.',
         () async {
-          final payload = Payload(
-            id: 0,
+          final payload = Payload.forSend(
             bytes: Uint8List(0),
           );
 
@@ -52,7 +50,7 @@ void main() {
       test(
         'filePath 값만 있을 때는 인스턴스 생성해야 함.',
         () async {
-          const payload = Payload(id: 0, filePath: '/path/to/file');
+          final payload = Payload.forSend(filePath: '/path/to/file');
 
           expect(payload, isA<Payload>());
         },
