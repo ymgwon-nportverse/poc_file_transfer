@@ -10,9 +10,27 @@ import NearbyConnections
 import UIKit
 import Flutter
 
+var nearByConnectionHandler:NearByConnectionHandler = NearByConnectionHandler()
+
+class FlutterPlatformChannelBridge {
+    var callName: FlutterNearbyMethodCallName?
+    var args : Dictionary<String, Any>?
+    var channel : FlutterMethodChannel
+    
+    init(callName: FlutterNearbyMethodCallName? = nil, args: Dictionary<String, Any>? = nil, channel: FlutterMethodChannel) {
+        self.callName = callName
+        self.args = args
+        self.channel = channel
+    }
+    
+  func  doAction(){
+        callName?.methodCall.callback(args, channel: channel)
+    }
+    
+}
+
 class StartDiscovery : FlutterNearbyMethodCallDelegate{
     
-    let bridge: NearByConnectionHandler = NearByConnectionHandler()
     
     func callback(_ args: Dictionary<String, Any>?, channel: FlutterMethodChannel) {
         
@@ -20,7 +38,7 @@ class StartDiscovery : FlutterNearbyMethodCallDelegate{
         let strategy = args?["strategy"] as? Int
         let serviceId = args?["serviceId"] as? String
     
-        bridge.invalidateDiscovery(isDiscoveryEnabled: true)
+        nearByConnectionHandler.invalidateDiscovery(isDiscoveryEnabled: true)
         
         // endpoint info , connection info
        // let arguments = ["endpointId": "test1","endpointName":"test2","authenticationDigits":"","isIncomingConnection":true] as Dictionary<String, Any>?

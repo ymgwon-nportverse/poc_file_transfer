@@ -24,19 +24,13 @@ public class FlutterPlatformChannel: FlutterPlatformChannelDelegate{
         flutterMethodChannel = FlutterMethodChannel(name: self.name, binaryMessenger: flutterViewController.binaryMessenger)
     }
     
-}
-
-
-extension FlutterPlatformChannel {
-    
-    func setMethodcallHandler() {
-        
-        //todo : flutter result 처리
+    func callHandler() {
         flutterMethodChannel.setMethodCallHandler({(call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+            var args =  call.arguments
             let flutterNearbyMethodCallName = FlutterNearbyMethodCallName(rawValue: call.method as String)
-            flutterNearbyMethodCallName?.methodCall.callback((call.arguments as? Dictionary<String, Any>), channel: self.flutterMethodChannel)
-            flutterNearbyMethodCallName?.methodCall.printCallBackName(name: call.method) // todo : 임시 로그
+            let flutterPlatformChannelBridge = FlutterPlatformChannelBridge (callName: flutterNearbyMethodCallName,args:args as? Dictionary<String, Any> ,channel: self.flutterMethodChannel)
+            flutterPlatformChannelBridge.doAction()
         })
-        
     }
+    
 }

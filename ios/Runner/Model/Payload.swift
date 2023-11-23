@@ -10,10 +10,19 @@ import NearbyConnections
 
 struct Payload: Identifiable {
     let id: PayloadID
-    let type: PayloadType
-    var bytes: [UInt8]?
-    var filePath: String?
+    var type: PayloadType
+    var status: Status
+    let isIncoming: Bool
+    let cancellationToken: CancellationToken?
+
+    enum PayloadType {
+        case bytes, stream, file
+    }
+    enum Status {
+        case inProgress(Progress), success, failure, canceled
+    }
 }
+
 
 //let uintInt8List =  call.arguments as! FlutterStandardTypedData
  //      let byte = [UInt8](uintInt8List.data)

@@ -15,7 +15,7 @@ protocol FlutterPlatformChannelDelegate {
     
     var flutterMethodChannel :FlutterMethodChannel! { get } 
     
-    func setMethodcallHandler() 
+    func callHandler() 
     
 }
 
