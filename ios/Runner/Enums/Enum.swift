@@ -29,17 +29,17 @@ enum BandwidthQuality {
 enum FlutterInvokeMethodEvent {
     case onAdvertiseConnectionInitiated,
          onAdvertiseConnectionResult,
-         onAdvertiseDisconnected,
+         onAdvertiseDisconnected, // ok
          
          onDiscoveryConnectionInitiated,
          onDiscoveryConnectionResult,
-         onDiscoveryDisconnected,
+         onDiscoveryDisconnected, // ok ,  하나만 끊기
          
-         onEndpointFound,
-         onEndpointLost,
+         onEndpointFound, // startDiscovery 관련
+         onEndpointLost, //startDiscovery 관련 ,ok , 전체 끊기
          
-         onPayloadReceived,
-         onPayloadTransferUpdate
+         onPayloadReceived, // todo byte 용량 제한
+         onPayloadTransferUpdate // todo
 }
 
 extension FlutterInvokeMethodEvent{

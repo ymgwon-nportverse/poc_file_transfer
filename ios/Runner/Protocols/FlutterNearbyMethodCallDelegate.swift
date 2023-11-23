@@ -11,39 +11,31 @@ import Foundation
 // 정리 필요 
 protocol FlutterNearbyMethodCallDelegate{
     
-//    @objc optional func startDiscovery(_ userName:String,strategy:String, serviceId:String)
-//    
-//    @objc optional func startAdvertising(_ userName:String,strategy:String, serviceId:String,onBandwidthChanged:()->(),onConnectionInitiated:()->(),onConnectionResult:()->(),onDisconnected:()->())
-//    
-//    @objc optional func stopDiscovery()
-//    
-//    @objc optional func stopAdvertising()
-//    
-//    @objc optional func stopAllEndpoints()
-//    
-//    @objc optional func disconnectFromEndpoint(_ endpointId:String)
-//    
-//    @objc optional func acceptConnection(_ endpointId:String,onPayloadReceived:()->(),onPayloadTransferUpdate:()->())
-//    
-//    @objc optional func  requestConnection(_ userName:String,endpointId:String,onBandwidthChanged:()->(),onConnectionInitiated:()->(),onConnectionResult:()->(),onDisconnected:()->())
-//    
-//    @objc optional func rejectConnection(_ endpointId:String)
-//    
-//    //   @objc optional func sendPayload(_ endpointId:String, paylodad :Payload)
-//    
-//    @objc optional func cancelPayload(_ payloadId:String)
-//    
-//    @objc func printCallBackName(name:String)
+//    @objc optional func startDiscovery(_ userName:String,strategy:String, serviceId:String) - ok
+//
+//    @objc optional func startAdvertising(_ userName:String,strategy:String, serviceId:String,onBandwidthChanged:()->(),onConnectionInitiated:()->(),onConnectionResult:()->(),onDisconnected:()->()) - ok
+//
+//    @objc optional func stopDiscovery() - ok
+//
+//    @objc optional func stopAdvertising() - ok
+//
+//    @objc optional func stopAllEndpoints() - ok
+//
+//    @objc optional func disconnectFromEndpoint(_ endpointId:String) - ok
+//
+//    @objc optional func acceptConnection(_  endpointId:String,onPayloadReceived:()->(),onPayloadTransferUpdate:()->()) - ok
+//
+//    @objc optional func  requestConnection(_ userName:String,endpointId:String,onBandwidthChanged:()->(),onConnectionInitiated:()->(),onConnectionResult:()->(),onDisconnected:()->()) - ok
+//
+//    @objc optional func rejectConnection(_ endpointId:String) - todo
+//
+//    //   @objc optional func sendPayload(_ endpointId:String, paylodad :Payload) - ok
+//
+//    @objc optional func cancelPayload(_ payloadId:String) - ok 
+//
     
     func  callback(_ args: Dictionary<String, Any>?, channel : FlutterMethodChannel)
     
-    //func invokeMethod()
-    
-//    @objc optional var args:  Dictionary<String, Any> { get }
-//    
-//    @objc optional var channel: FlutterMethodChannel { get }
-    
-    //    @objc var bridge: FlutterPlatformChannelBridge { get }
 }
 
 
