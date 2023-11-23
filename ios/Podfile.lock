@@ -4,11 +4,17 @@ PODS:
   - Flutter (1.0.0)
   - permission_handler_apple (9.1.1):
     - Flutter
+  - Swinject (2.8.3)
 
 DEPENDENCIES:
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - Swinject
+
+SPEC REPOS:
+  trunk:
+    - Swinject
 
 EXTERNAL SOURCES:
   device_info_plus:
@@ -22,7 +28,8 @@ SPEC CHECKSUMS:
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
+  Swinject: 893c9a543000ac2f10ee4cbaf0933c6992c935d5
 
-PODFILE CHECKSUM: 6e29c55c8243a7be4eb07ef19bfb15f6dca04c6f
+PODFILE CHECKSUM: 2a9fbff60d1e4ce26c682e19256d2fcb6e70a2e1
 
-COCOAPODS: 1.13.0
+COCOAPODS: 1.14.2

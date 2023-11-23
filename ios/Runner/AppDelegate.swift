@@ -17,7 +17,6 @@ import NearbyConnections
         let flutterPlatformChannel: FlutterPlatformChannel = FlutterPlatformChannel(name: Constants.methodChannelName, flutterWindow: window)
         
         flutterPlatformChannel.callHandler()
-        
         GeneratedPluginRegistrant.register(with: self)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
