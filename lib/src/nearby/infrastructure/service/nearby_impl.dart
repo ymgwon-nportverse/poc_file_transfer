@@ -1,13 +1,21 @@
 import 'package:flutter/services.dart';
 import 'package:poc/src/nearby/application/service/nearby.dart';
-import 'package:poc/src/nearby/infrastructure/service/exceptions.dart';
+import 'package:poc/src/nearby/application/service/exceptions.dart';
 
+/// [Nearby] 의 구현
+///
+/// **한계점**
+/// - Clean Architecture 를 표방한다면, 어떤 구현을 의도하는지 인터페이스에서 알 수 없어야 하나
+///   이 프로젝트는 해당 기술에 상당히 의존적임을 interface에서 이미 나타내고 있음.
 class NearbyImpl implements Nearby {
+  /// constructor 에서 [MethodChannel] 을 선택적으로 주입할 수 있도록 처리한 이유는
+  /// 테스트 코드를 작성할 때 사용하기 위해서임.
   NearbyImpl({MethodChannel? channel})
       : _channel = channel ?? const MethodChannel('nearby_connections') {
     _initializeMethodCallHandler();
   }
 
+  /// Platform (Android/iOS) 에 구현된 코드와 통신하는 방법을 채택하기로 합의됨.
   final MethodChannel _channel;
 
   /// [startAdvertising] 혹은 [requestConnection] 하는 경우의 callback 들
@@ -186,6 +194,9 @@ class NearbyImpl implements Nearby {
     );
   }
 
+  /// bytes에 데이터 넣어보낼때 주의할 사항
+  ///
+  /// - 6940316 bytes ~= 6.619 MB 까지 bytes 로 전송 가능하니 주의
   @override
   Future<void> sendPayload(
     Payload payload,
@@ -294,9 +305,9 @@ class NearbyImpl implements Nearby {
     String? filePath = args['filePath'];
 
     Payload payload = Payload(
+      id: payloadId,
       type: PayloadType.values.byName(type),
       bytes: bytes,
-      id: payloadId,
       filePath: filePath,
     );
 

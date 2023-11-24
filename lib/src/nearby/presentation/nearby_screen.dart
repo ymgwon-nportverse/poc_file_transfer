@@ -1,151 +1,84 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:poc/src/nearby/application/bloc/nearby_event.dart';
-import 'package:poc/src/nearby/application/bloc/nearby_state.dart';
+import 'package:poc/src/core/presentation/extensions/extensions.dart';
+import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_event.dart';
+import 'package:poc/src/nearby/application/bloc/sender/nearby_sender_event.dart';
 import 'package:poc/src/nearby/di.dart';
-import 'package:poc/src/nearby/presentation/nearby_receive_section.dart';
-import 'package:poc/src/nearby/presentation/nearby_send_section.dart';
 
-class NearbyScreen extends ConsumerStatefulWidget {
+/// 코드 작성자는 가장 큰 화면 단위(e.g. 전체를 차지하는 화면)을 부를 때, Screen 이라 명명함
+///
+/// 화면의 의미 요소가 작아짐에 따라, Screen -> Section -> Widget 으로 명명함
+///
+/// 혼자 작업할 때는 위와 같이 작업을 하나, 팀 작업에서는 팅에 맞춰 달라질 수 있음.
+///
+/// c.f.) Page 라는 명명을 안쓰는 이유?
+/// - Navigator 2.0 에 Page 라는 클래스가 이미 이름을 선점하고 있기 때문
+class NearbyScreen extends ConsumerWidget {
   const NearbyScreen({super.key});
 
   @override
-  ConsumerState<NearbyScreen> createState() => _NearbyScreenState();
-}
-
-class _NearbyScreenState extends ConsumerState<NearbyScreen> {
-  TransferMode _mode = TransferMode.none;
-
-  @override
-  Widget build(BuildContext context) {
-    ref.listen(
-      nearbyBlocProvider,
-      (previous, current) {
-        switch (current) {
-          case NearbyStateNone(userName: var userName):
-            log('$userName is added');
-          case NearbyStateAdvertising():
-            log('Here goes advertising');
-          case NearbyStateDiscovering():
-            log('Here goes discovering');
-          case NearbyStateConnecting():
-            log('Here goes connecting');
-          case NearbyStateConnected():
-            log('Here goes connected');
-          case NearbyStateFailed():
-            log('Here goes failed');
-        }
-      },
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.read(nearbyConditionResolverProvider).isSatisfied();
 
     return GestureDetector(
-      onTap: FocusScope.of(context).unfocus,
+      onTap: context.focus.unfocus,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Nearby Connections Example'),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('데이터 보내기/받기'),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _mode = TransferMode.send;
-                            });
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                _colorByMode(TransferMode.send)),
-                          ),
-                          child: const Text('Send'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            ref
-                                .read(nearbyBlocProvider.notifier)
-                                .mapEventToState(const NearbyEvent.advertise());
-                            setState(() {
-                              _mode = TransferMode.receive;
-                            });
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                _colorByMode(TransferMode.receive)),
-                          ),
-                          child: const Text('Receive'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () => _routeTo(
+                context,
+                'send',
+                onPush: () => ref
+                    .read(nearbySenderBlocProvider.notifier)
+                    .mapEventToState(const NearbySenderEvent.search()),
+                onReturn: () => ref
+                    .read(nearbySenderBlocProvider.notifier)
+                    .mapEventToState(const NearbySenderEvent.stopAll()),
               ),
-              if (_mode != TransferMode.none)
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () {
-                            ref
-                                .read(nearbyBlocProvider.notifier)
-                                .mapEventToState(const NearbyEvent.end());
-                            setState(() {
-                              _mode = TransferMode.none;
-                            });
-                          },
-                          child: const Text('Cancel'),
-                        ),
-                      ),
-                      _widgetByMode(),
-                    ],
-                  ),
-                ),
-            ],
-          ),
+              icon: const Icon(Icons.upload),
+              label: const Text('데이터 전송하기'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () => _routeTo(
+                context,
+                'receive',
+                onPush: () => ref
+                    .read(nearbyReceiverBlocProvider.notifier)
+                    .mapEventToState(const NearbyReceiverEvent.advertise()),
+                onReturn: () => ref
+                    .read(nearbyReceiverBlocProvider.notifier)
+                    .mapEventToState(const NearbyReceiverEvent.stopAll()),
+              ),
+              icon: const Icon(Icons.download),
+              label: const Text('데이터 전송받기'),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _widgetByMode() {
-    return switch (_mode) {
-      TransferMode.send => NearbySendSection(
-          onSubmit: () => ref
-              .read(nearbyBlocProvider.notifier)
-              .mapEventToState(const NearbyEvent.discover()),
-        ),
-      TransferMode.receive => const NearbyReceiveSection(),
-      TransferMode.none => throw UnimplementedError(),
-    };
-  }
+  /// Navigator로 다음 페이지 이동시키고 이동 이후 해야할 작업 처리.
+  ///
+  /// [onReturn] callback 을 만든 이유는 화면이 stack 에서 사라질 때, 처리해줘야하는 로직을
+  /// [StatefulWidget] 의 `onDispose` 나 `onDeactivate` 에서 처리하려면 오류 발생하기
+  /// 때문에 오류방지하기 위해 stack에서 돌아왔을때 처리
+  void _routeTo(
+    BuildContext context,
+    String path, {
+    required VoidCallback onPush,
+    required VoidCallback onReturn,
+  }) {
+    context.navigator.pushNamed('/nearby/$path').then(
+          // 다시 이 화면으로 돌아왔을 때 callback
+          (_) => onReturn.call(),
+        );
 
-  Color _colorByMode(TransferMode targetMode) {
-    if (_mode == targetMode) {
-      return Theme.of(context).buttonTheme.colorScheme!.primaryContainer;
-    } else {
-      return Theme.of(context).buttonTheme.colorScheme!.background;
-    }
+    onPush.call();
   }
-}
-
-enum TransferMode {
-  none,
-  send,
-  receive,
 }
