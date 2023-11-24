@@ -288,13 +288,13 @@ class NearbyImpl implements Nearby {
 
   void _handleOnPayloadReceived(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
-    int type = args['type'] ?? PayloadType.none;
+    final type = args['type'] ?? PayloadType.none.name;
     Uint8List bytes = args['bytes'] ?? Uint8List(0);
     int payloadId = args['payloadId'] ?? -1;
     String? filePath = args['filePath'];
 
     Payload payload = Payload(
-      type: PayloadType.values[type],
+      type: PayloadType.values.byName(type),
       bytes: bytes,
       id: payloadId,
       filePath: filePath,
@@ -306,13 +306,13 @@ class NearbyImpl implements Nearby {
   void _handleOnPayloadTransferUpdate(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
     int payloadId = args['payloadId'] ?? -1;
-    int status = args['status'] ?? ConnectionStatus.error.index;
+    final status = args['status'] ?? ConnectionStatus.error.name;
     int bytesTransferred = args['bytesTransferred'] ?? 0;
     int totalBytes = args['totalBytes'] ?? 0;
 
     PayloadTransferUpdate payloadTransferUpdate = PayloadTransferUpdate(
       id: payloadId,
-      status: PayloadStatus.values[status],
+      status: PayloadStatus.values.byName(status),
       bytesTransferred: bytesTransferred,
       totalBytes: totalBytes,
     );

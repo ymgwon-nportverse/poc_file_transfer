@@ -177,7 +177,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                     val bytes = call.argument<ByteArray>("bytes")
                     assert(endpointId != null)
                     assert(
-                        (bytes == null && filePath != null) || (filePath == null && bytes != null)
+                        (bytes == null && filePath != null) || (filePath == null && bytes != null),
                     )
 
                     lateinit var payload: Payload
@@ -309,7 +309,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
             val args: MutableMap<String, Any?> = HashMap()
             args["endpointId"] = endpointId
             args["payloadId"] = payload.id
-            args["type"] = payload.type
+            args["type"] = getPayloadName(payload.type)
             if (payload.type == Payload.Type.BYTES) {
                 val bytes = payload.asBytes()
                 assert(bytes != null)
@@ -333,7 +333,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
             val args: MutableMap<String, Any> = HashMap()
             args["endpointId"] = endpointId
             args["payloadId"] = payloadTransferUpdate.payloadId
-            args["status"] = payloadTransferUpdate.status
+            args["status"] = getTransferStatusName(payloadTransferUpdate.status)
             args["bytesTransferred"] = payloadTransferUpdate.bytesTransferred
             args["totalBytes"] = payloadTransferUpdate.totalBytes
             channel.invokeMethod("onPayloadTransferUpdate", args)
@@ -367,6 +367,25 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
             0 -> Strategy.P2P_CLUSTER
             1 -> Strategy.P2P_STAR
             2 -> Strategy.P2P_POINT_TO_POINT
+            else -> throw IllegalArgumentException()
+        }
+    }
+
+    private fun getPayloadName(payloadCode: Int): String {
+        return when (payloadCode) {
+            1 -> "bytes"
+            2 -> "file"
+            3 -> "stream"
+            else -> throw IllegalArgumentException()
+        }
+    }
+
+    private fun getTransferStatusName(transferUpdateCode: Int): String {
+        return when (transferUpdateCode) {
+            1 -> "success"
+            2 -> "failure"
+            3 -> "inProgress"
+            4 -> "canceled"
             else -> throw IllegalArgumentException()
         }
     }
