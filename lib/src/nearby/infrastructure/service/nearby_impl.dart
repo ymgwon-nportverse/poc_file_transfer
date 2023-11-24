@@ -231,8 +231,8 @@ class NearbyImpl implements Nearby {
 
   void _handleOnAdvertiseConnectionResult(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
-    ConnectionStatus statusCode = ConnectionStatus
-        .values[args['statusCode'] ?? ConnectionStatus.error.index];
+    ConnectionStatus statusCode = ConnectionStatus.values
+        .byName(args['statusCode'] as String? ?? ConnectionStatus.error.name);
 
     _advertiseConnectionResult?.call(endpointId, statusCode);
   }
@@ -261,8 +261,8 @@ class NearbyImpl implements Nearby {
 
   void _handleOnDiscoveryConnectionResult(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
-    ConnectionStatus statusCode = ConnectionStatus
-        .values[args['statusCode'] ?? ConnectionStatus.error.index];
+    ConnectionStatus statusCode = ConnectionStatus.values
+        .byName(args['statusCode'] as String? ?? ConnectionStatus.error.name);
 
     _discoverConnectionResult?.call(endpointId, statusCode);
   }
