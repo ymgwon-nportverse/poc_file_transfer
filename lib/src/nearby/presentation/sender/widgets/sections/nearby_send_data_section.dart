@@ -4,21 +4,46 @@ import 'package:poc/src/core/presentation/extensions/extensions.dart';
 import 'package:poc/src/nearby/di.dart';
 import 'package:poc/src/nearby/presentation/sender/ui_state/ui_send_property.dart';
 
-class NearbySendDataSection extends ConsumerWidget {
+class NearbySendDataSection extends ConsumerStatefulWidget {
   const NearbySendDataSection({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NearbySendDataSection> createState() =>
+      _NearbySendDataSectionState();
+}
+
+class _NearbySendDataSectionState extends ConsumerState<NearbySendDataSection> {
+  int _toggleIndex = 0;
+  final _sections = const [
+    NearbyTextAssetsList(),
+    NearbyFileAssetsList(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          '보내는 데이터',
-          style: context.textTheme.headlineSmall,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              '보내는 데이터',
+              style: context.textTheme.headlineSmall,
+            ),
+            const Spacer(),
+            SizedBox(
+              height: 40,
+              child: SendTypeToggleWidget(
+                onToggle: _onToggle,
+                initialIndex: _toggleIndex,
+              ),
+            ),
+          ],
         ),
         const Divider(),
-        const Expanded(
-          child: NearbyAssetsList(),
+        Expanded(
+          child: _sections[_toggleIndex],
         ),
         const Divider(
           height: 2,
@@ -43,10 +68,16 @@ class NearbySendDataSection extends ConsumerWidget {
       ],
     );
   }
+
+  void _onToggle(int index) {
+    setState(() {
+      _toggleIndex = index;
+    });
+  }
 }
 
-class NearbyAssetsList extends ConsumerWidget {
-  const NearbyAssetsList({super.key});
+class NearbyTextAssetsList extends ConsumerWidget {
+  const NearbyTextAssetsList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -108,6 +139,119 @@ class _AssetItem extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class NearbyFileAssetsList extends StatelessWidget {
+  const NearbyFileAssetsList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Spacer(),
+        ElevatedButton(
+          onPressed: _onTap,
+          child: const Text('파일 불러오기'),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _onTap() async {}
+}
+
+class SendTypeToggleWidget extends StatefulWidget {
+  const SendTypeToggleWidget(
+      {super.key, required this.onToggle, this.initialIndex = 0})
+      : assert(initialIndex <= 1);
+
+  final int initialIndex;
+  final ValueChanged<int> onToggle;
+
+  @override
+  State<SendTypeToggleWidget> createState() => _SendTypeToggleWidgetState();
+}
+
+class _SendTypeToggleWidgetState extends State<SendTypeToggleWidget> {
+  final icons = [Icons.text_format, Icons.file_present];
+  late int _index;
+
+  @override
+  void initState() {
+    super.initState();
+    _index = widget.initialIndex;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return GestureDetector(
+          onTapUp: (details) {
+            if (details.localPosition.dx > constraints.maxHeight * 1.3) {
+              if (_index == 1) {
+                return;
+              }
+              setState(() {
+                _index = 1;
+                widget.onToggle.call(_index);
+              });
+            } else {
+              if (_index == 0) {
+                return;
+              }
+              setState(() {
+                _index = 0;
+                widget.onToggle.call(_index);
+              });
+            }
+          },
+          child: SizedBox(
+            height: constraints.maxHeight,
+            width: constraints.maxHeight * 2.5,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: context.theme.colorScheme.onInverseSurface,
+                  ),
+                  child: Row(
+                    children:
+                        icons.map((e) => Expanded(child: Icon(e))).toList(),
+                  ),
+                ),
+                AnimatedAlign(
+                  alignment: _index == 0
+                      ? Alignment.centerLeft
+                      : Alignment.centerRight,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.fastEaseInToSlowEaseOut,
+                  child: Container(
+                    margin: const EdgeInsets.all(2),
+                    height: constraints.maxHeight,
+                    width: constraints.maxHeight * 1.3,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: context.theme.colorScheme.primary,
+                    ),
+                    child: Center(
+                        child: Icon(
+                      icons[_index],
+                      color: Colors.white,
+                    )),
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -4,14 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poc/src/nearby/application/bloc/sender/nearby_sender_event.dart';
 import 'package:poc/src/nearby/application/bloc/sender/nearby_sender_state.dart';
 import 'package:poc/src/nearby/application/service/nearby.dart';
-import 'package:poc/src/nearby/application/service/nearby_precondition_checker.dart';
 import 'package:poc/src/nearby/application/service/user_info_fetcher.dart';
 import 'package:poc/src/nearby/application/service/exceptions.dart';
 
 class NearbySenderBloc extends StateNotifier<NearbySenderState> {
   NearbySenderBloc(
     this._nearby,
-    this._checker,
     this._infoFetcher,
   ) : super(const NearbySenderState.none()) {
     // User 정보를 이후에 계속 사용하기 위해 initializer에서 받아옴
@@ -19,7 +17,6 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
   }
 
   final Nearby _nearby;
-  final NearbyPreconditionChecker _checker;
   final UserInfoFetcher _infoFetcher;
 
   /// 데이터 보낼 endpoint id
@@ -63,15 +60,6 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
   /// `송신자(sender)` 가
   /// `수신자(receiver)` 를 찾기 위한 함수
   Future<void> discover(Strategy strategy) async {
-    // step 1: 사전 조건(e.g. bluetooth 켜져있는지, 권한 설정 되어 있는지) 확인
-    final isPreconditionSatisfied = await _checker.isSatisfied();
-    if (!isPreconditionSatisfied) {
-      // result 1: 조건 만족하지 않을 때는 그에 맞게 상태 변경
-      state = const NearbySenderState.failed('precondition unsatisfied');
-      _checker.makeItSatisfied();
-      return;
-    }
-
     try {
       await _nearby.startDiscovery(
         _userName,

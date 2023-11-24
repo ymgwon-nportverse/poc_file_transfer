@@ -43,10 +43,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-
-# ymgwon: a tool related to linting/formatting
+# ymgwon: tools related to linting/formatting
 /.trunk
 
-# ymgwon: a tool related to virtual env
+# ymgwon: tools related to virtual environment
 .tool-versions
-.envrc

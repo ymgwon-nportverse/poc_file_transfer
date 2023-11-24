@@ -19,6 +19,12 @@ class _MainAppState extends State<MainApp> {
   }
 
   @override
+  void dispose() {
+    _routerDelegate.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     /// riverpod 설정을 위해 필요함!
     return ProviderScope(

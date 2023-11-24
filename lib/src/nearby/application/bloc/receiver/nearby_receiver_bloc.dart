@@ -3,13 +3,11 @@ import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_event.d
 import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_state.dart';
 import 'package:poc/src/nearby/application/service/exceptions.dart';
 import 'package:poc/src/nearby/application/service/nearby.dart';
-import 'package:poc/src/nearby/application/service/nearby_precondition_checker.dart';
 import 'package:poc/src/nearby/application/service/user_info_fetcher.dart';
 
 class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
   NearbyReceiverBloc(
     this._nearby,
-    this._checker,
     this._infoFetcher,
   ) : super(const NearbyReceiverState.none()) {
     // User 정보를 이후에 계속 사용하기 위해 initializer에서 받아옴
@@ -17,7 +15,6 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
   }
 
   final Nearby _nearby;
-  final NearbyPreconditionChecker _checker;
   final UserInfoFetcher _infoFetcher;
 
   /// [advertise] 할 때, 상대에게 누군지 알려주기 위한 값.
@@ -51,15 +48,6 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
   /// `수신자(receiver)` 가
   /// `전송자(sender)` 에게 자신을 찾을 수 있도록 알리는 함수
   Future<void> advertise(Strategy strategy) async {
-    // step 1: 사전 조건(e.g. bluetooth 켜져있는지, 권한 설정 되어 있는지) 확인
-    final isPreconditionSatisfied = await _checker.isSatisfied();
-    if (!isPreconditionSatisfied) {
-      // result 1: 조건 만족하지 않을 때는 그에 맞게 상태 변경
-      state = const NearbyReceiverState.failed('precondition unsatisfied');
-      _checker.makeItSatisfied();
-      return;
-    }
-
     try {
       // step 2: advertising
       await _nearby.startAdvertising(

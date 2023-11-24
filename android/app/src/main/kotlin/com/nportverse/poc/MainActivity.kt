@@ -26,23 +26,23 @@ import java.io.FileNotFoundException
 
 const val SERVICE_ID = "com.nportverse.poc"
 
-const val METHOD_CHANNEL = "nearby_connections"
+const val NEARBY_METHOD_CHANNEL = "nearby_connections"
 
 class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
-    private lateinit var channel: MethodChannel
+    private lateinit var nearbyChannel: MethodChannel
 
     override fun configureFlutterEngine(
         @NonNull flutterEngine: FlutterEngine,
     ) {
         super.configureFlutterEngine(flutterEngine)
 
-        channel =
+        nearbyChannel =
             MethodChannel(
                 flutterEngine.dartExecutor.binaryMessenger,
-                METHOD_CHANNEL,
+                NEARBY_METHOD_CHANNEL,
             )
 
-        channel.setMethodCallHandler(this)
+        nearbyChannel.setMethodCallHandler(this)
     }
 
     override fun onMethodCall(
@@ -232,7 +232,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                 args["endpointName"] = connectionInfo.endpointName
                 args["authenticationDigits"] = connectionInfo.authenticationDigits
                 args["isIncomingConnection"] = connectionInfo.isIncomingConnection
-                channel.invokeMethod("onAdvertiseConnectionInitiated", args)
+                nearbyChannel.invokeMethod("onAdvertiseConnectionInitiated", args)
             }
 
             override fun onConnectionResult(
@@ -250,14 +250,14 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                     else -> {}
                 }
                 args["statusCode"] = statusCode
-                channel.invokeMethod("onAdvertiseConnectionResult", args)
+                nearbyChannel.invokeMethod("onAdvertiseConnectionResult", args)
             }
 
             override fun onDisconnected(endpointId: String) {
                 Log.d("nearby_connections", "onAdvertiseDisconnected")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
-                channel.invokeMethod("onAdvertiseDisconnected", args)
+                nearbyChannel.invokeMethod("onAdvertiseDisconnected", args)
             }
         }
 
@@ -273,7 +273,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                 args["endpointName"] = connectionInfo.endpointName
                 args["authenticationDigits"] = connectionInfo.authenticationDigits
                 args["isIncomingConnection"] = connectionInfo.isIncomingConnection
-                channel.invokeMethod("onDiscoveryConnectionInitiated", args)
+                nearbyChannel.invokeMethod("onDiscoveryConnectionInitiated", args)
             }
 
             override fun onConnectionResult(
@@ -291,14 +291,14 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                     else -> {}
                 }
                 args["statusCode"] = statusCode
-                channel.invokeMethod("onDiscoveryConnectionResult", args)
+                nearbyChannel.invokeMethod("onDiscoveryConnectionResult", args)
             }
 
             override fun onDisconnected(endpointId: String) {
                 Log.d("nearby_connections", "onDiscoveryDisconnected")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
-                channel.invokeMethod("onDiscoveryDisconnected", args)
+                nearbyChannel.invokeMethod("onDiscoveryDisconnected", args)
             }
         }
 
@@ -324,7 +324,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                         args["filePath"] = payload.asFile()!!.asJavaFile()!!.absolutePath
                     }
                 }
-                channel.invokeMethod("onPayloadReceived", args)
+                nearbyChannel.invokeMethod("onPayloadReceived", args)
             }
 
             override fun onPayloadTransferUpdate(
@@ -339,7 +339,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                 args["status"] = getTransferStatusName(payloadTransferUpdate.status)
                 args["bytesTransferred"] = payloadTransferUpdate.bytesTransferred
                 args["totalBytes"] = payloadTransferUpdate.totalBytes
-                channel.invokeMethod("onPayloadTransferUpdate", args)
+                nearbyChannel.invokeMethod("onPayloadTransferUpdate", args)
             }
         }
 
@@ -354,14 +354,14 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                 args["endpointId"] = endpointId
                 args["endpointName"] = discoveredEndpointInfo.endpointName
                 args["serviceId"] = discoveredEndpointInfo.serviceId
-                channel.invokeMethod("onEndpointFound", args)
+                nearbyChannel.invokeMethod("onEndpointFound", args)
             }
 
             override fun onEndpointLost(endpointId: String) {
                 Log.d("nearby_connections", "onEndpointLost")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
-                channel.invokeMethod("onEndpointLost", args)
+                nearbyChannel.invokeMethod("onEndpointLost", args)
             }
         }
 
