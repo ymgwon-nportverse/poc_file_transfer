@@ -20,8 +20,8 @@ class CommonDialog extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.symmetric(
-                vertical: 12.0,
-                horizontal: 8.0,
+                vertical: 16.0,
+                horizontal: 12.0,
               ),
               alignment: Alignment.center,
               child: child,
