@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:poc/src/core/presentation/home_screen.dart';
 import 'package:poc/src/core/presentation/widgets/not_found_screen.dart';
 import 'package:poc/src/core/presentation/widgets/white_text_message_dialog.dart';
+import 'package:poc/src/nearby/presentation/dialogs/nearby_precondition_bluetooth_dialog.dart';
+import 'package:poc/src/nearby/presentation/dialogs/nearby_precondition_denied_permission_dialog.dart';
+import 'package:poc/src/nearby/presentation/dialogs/nearby_precondition_permission_dialog.dart';
 import 'package:poc/src/nearby/presentation/nearby_screen.dart';
 import 'package:poc/src/nearby/presentation/receiver/widgets/bottom_sheets/nearby_receive_confirm_bottom_sheet.dart';
 import 'package:poc/src/nearby/presentation/receiver/widgets/dialogs/nearby_receive_failure_dialog.dart';
@@ -43,6 +46,39 @@ class AppRouterDelegate extends RouterDelegate<Object>
             return MaterialPageRoute(
               settings: const RouteSettings(name: '/nearby'),
               builder: (_) => const NearbyScreen(),
+            );
+          case '/nearby/precondition/bluetooth':
+            return DialogRoute(
+              settings:
+                  const RouteSettings(name: '/nearby/precondition/bluetooth'),
+              context: context,
+              useSafeArea: true,
+              barrierDismissible: false,
+              builder: (_) {
+                return const NearbyPreconditionBluetoothDialog();
+              },
+            );
+          case '/nearby/precondition/permission':
+            return DialogRoute<bool>(
+              settings:
+                  const RouteSettings(name: '/nearby/precondition/permission'),
+              context: context,
+              useSafeArea: true,
+              barrierDismissible: false,
+              builder: (_) {
+                return const NearbyPreconditionPermissionDialog();
+              },
+            );
+          case '/nearby/precondition/no-permission':
+            return DialogRoute<bool>(
+              settings: const RouteSettings(
+                  name: '/nearby/precondition/no-permission'),
+              context: context,
+              useSafeArea: true,
+              barrierDismissible: false,
+              builder: (_) {
+                return const NearbyPreconditionDeniedPermissionDialog();
+              },
             );
 
           /// `/nearby/receive` 관련

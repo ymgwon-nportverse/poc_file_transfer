@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_bloc.dart';
@@ -33,10 +35,19 @@ final nearbyProvider = Provider<Nearby>(
   (ref) => NearbyImpl(),
 );
 
-final nearbyConditionResolverProvider = Provider<NearbyPreconditionResolver>(
-  (ref) => NearbyPreconditionResolverImpl(
-    ref.watch(deviceInfoProvider),
-  ),
+final nearbyPreconditionResolverProvider = Provider<NearbyPreconditionResolver>(
+  (ref) {
+    if (Platform.isAndroid) {
+      return NearbyPreconditionResolverConcreteImplAndroid(
+          ref.watch(deviceInfoProvider));
+    }
+
+    if (Platform.isIOS) {
+      return const NearbyPreconditionResolverConcreteImplIos();
+    }
+
+    throw UnimplementedError();
+  },
 );
 
 final infoFetcherProvider = Provider<UserInfoFetcher>(
