@@ -18,8 +18,6 @@ class NearbyScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.read(nearbyConditionResolverProvider).isSatisfied();
-
     return GestureDetector(
       onTap: context.focus.unfocus,
       child: Scaffold(

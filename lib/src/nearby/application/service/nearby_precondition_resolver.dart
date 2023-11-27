@@ -4,6 +4,12 @@
 /// c.f.) Checker 이상의 기능(e.g. 필수조건 만족시키기) 을 하기 때문에 이름을 변경할 필요가
 /// 있음. 생각나는대로 수정할 예정.
 abstract interface class NearbyPreconditionResolver {
-  Future<bool> isSatisfied();
+  Future<PreconditionIssueType?> checkAnyIssue();
   Future<void> resolve();
+}
+
+enum PreconditionIssueType {
+  permissionsNotGranted,
+  permissionsPermanentlyDenied,
+  bluetoothOff,
 }
