@@ -283,11 +283,11 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                 Log.d("nearby_connections", "onDiscoveryConnectionResult")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
-                var statusCode = -1
+                var statusCode = "none"
                 when (connectionResolution.status.statusCode) {
-                    ConnectionsStatusCodes.STATUS_OK -> statusCode = 0
-                    ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED -> statusCode = 1
-                    ConnectionsStatusCodes.STATUS_ERROR -> statusCode = 2
+                    ConnectionsStatusCodes.STATUS_OK -> statusCode = "connected"
+                    ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED -> statusCode = "rejected"
+                    ConnectionsStatusCodes.STATUS_ERROR -> statusCode = "error"
                     else -> {}
                 }
                 args["statusCode"] = statusCode
