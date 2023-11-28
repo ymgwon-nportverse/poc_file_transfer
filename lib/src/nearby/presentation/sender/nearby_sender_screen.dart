@@ -12,8 +12,8 @@ import 'package:poc/src/nearby/presentation/sender/ui_state/ui_send_property.dar
 import 'package:poc/src/nearby/presentation/sender/widgets/sections/nearby_send_data_section.dart';
 import 'package:poc/src/nearby/presentation/sender/widgets/sections/nearby_send_receivers_section.dart';
 
-class NearbySendScreen extends ConsumerWidget {
-  const NearbySendScreen({super.key});
+class NearbySenderScreen extends ConsumerWidget {
+  const NearbySenderScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     _reserveRouteForEachNearbyState(context, ref);
@@ -70,20 +70,22 @@ class NearbySendScreen extends ConsumerWidget {
             if (!current.devices
                 .contains(ref.watch(uiSendPropertyProvider).selectedDevice)) {
               bool didPop = false;
-              context.navigator.popUntil((routes) {
-                final canPop = routes.settings.name != '/nearby/send';
-                if (canPop) {
-                  didPop = true;
-                }
-                return !canPop;
-              });
+              context.navigator.popUntil(
+                (routes) {
+                  final canPop = routes.settings.name != '/nearby/send';
+                  if (canPop) {
+                    didPop = true;
+                  }
+                  return !canPop;
+                },
+              );
 
               if (didPop) {
                 context.navigator.pushNamed(
                   '/nearby/send/interrupt',
                   arguments: {
                     'deviceName':
-                        ref.watch(uiSendPropertyProvider).selectedDevice!.name
+                        ref.watch(uiSendPropertyProvider).selectedDevice!.name,
                   },
                 );
               }
@@ -92,29 +94,13 @@ class NearbySendScreen extends ConsumerWidget {
             }
 
           case NearbySenderStateRequesting():
-            context.navigator
-                .popUntil((routes) => routes.settings.name == '/nearby/send');
+            context.navigator.popUntil(
+              (routes) => routes.settings.name == '/nearby/send',
+            );
             context.navigator.pushNamed(
               '/nearby/send/process',
               arguments: {'message': '응답 대기중...'},
             );
-          case NearbySenderStateConnected():
-            context.navigator
-                .popUntil((routes) => routes.settings.name == '/nearby/send');
-
-            context.navigator.pushNamed(
-              '/nearby/send/process',
-              arguments: {'message': '데이터 전송중...'},
-            );
-
-            ref.read(nearbySenderBlocProvider.notifier).mapEventToState(
-                  NearbySenderEvent.sendPayload(
-                    Uint8List.fromList(ref
-                        .read(uiSendPropertyProvider)
-                        .selectedData!
-                        .codeUnits),
-                  ),
-                );
 
           case NearbySenderStateRejected():
             context.navigator
@@ -128,10 +114,34 @@ class NearbySendScreen extends ConsumerWidget {
                         const NearbySenderEvent.recoverFromRejection(),
                       ),
                 );
+
+          case NearbySenderStateConnected():
+            context.navigator
+                .popUntil((routes) => routes.settings.name == '/nearby/send');
+
+            context.navigator.pushNamed(
+              '/nearby/send/process',
+              arguments: {'message': '데이터 전송중...'},
+            );
+
+            ref.read(nearbySenderBlocProvider.notifier).mapEventToState(
+                  NearbySenderEvent.sendPayload(
+                    Uint8List.fromList(
+                      ref.read(uiSendPropertyProvider).selectedData!.codeUnits,
+                    ),
+                  ),
+                );
+
           case NearbySenderStateFailed():
-          // TODO: Handle this case.
+            context.navigator.pushNamed('/nearby/send/reject').then(
+                  (_) => context.navigator
+                      .popUntil((routes) => routes.settings.name == '/nearby'),
+                );
           case NearbySenderStateSuccess():
-          // TODO: Handle this case.
+            context.navigator.pushNamed('/nearby/send/success').then(
+                  (_) => context.navigator
+                      .popUntil((routes) => routes.settings.name == '/nearby'),
+                );
         }
       },
     );

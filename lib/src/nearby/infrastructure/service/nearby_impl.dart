@@ -299,14 +299,15 @@ class NearbyImpl implements Nearby {
 
   void _handleOnPayloadReceived(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
-    final type = args['type'] ?? PayloadType.none.name;
+    final type =
+        PayloadType.values.byName(args['type'] ?? PayloadType.none.name);
     Uint8List bytes = args['bytes'] ?? Uint8List(0);
     int payloadId = args['payloadId'] ?? -1;
     String? filePath = args['filePath'];
 
-    Payload payload = Payload(
+    final payload = Payload(
       id: payloadId,
-      type: PayloadType.values.byName(type),
+      type: type,
       bytes: bytes,
       filePath: filePath,
     );

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_event.dart';
 import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_state.dart';
@@ -139,9 +142,19 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
   }
 
   /// 현재는 bytes 만 보내는 것을 상정하고 있음에 주의
+  ///
   /// TODO: 현재는 bytes 단위만 확인했으므로 file 도 확인해보고 이 TODO 삭제하기
   void _onPayloadReceived(String endpointId, Payload payload) {
     _transferredData = String.fromCharCodes(payload.bytes!);
+
+    _nearby.sendPayload(
+      Payload.forSend(
+        bytes: Uint8List.fromList(json.encode({'isSuccess': true}).codeUnits),
+      ),
+      endpointId,
+    );
+
+    state = NearbyReceiverState.success(_transferredData!);
   }
 
   /// [PayloadTransferUpdate.status] 는 inProgress -> success 로
@@ -156,12 +169,20 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
       case PayloadStatus.none:
         break;
       case PayloadStatus.success:
-        state = NearbyReceiverState.success(_transferredData!);
+        break;
       case PayloadStatus.failure:
+        // TODO: 다음 프로토콜 리팩토링 하기
+        _nearby.sendPayload(
+          Payload.forSend(
+              bytes: Uint8List.fromList(
+                  json.encode({'isSuccess': false}).codeUnits)),
+          endpointId,
+        );
+
         state = const NearbyReceiverState.failed(
             'something went wrong while receiving data');
       case PayloadStatus.inProgress:
-        state = const NearbyReceiverState.receiving();
+        break;
       case PayloadStatus.canceled:
         state = const NearbyReceiverState.failed('canceled');
     }

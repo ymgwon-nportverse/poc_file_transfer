@@ -11,7 +11,6 @@ sealed class NearbyReceiverState {
           String endpointId, ConnectionInfo connectionInfo) =
       NearbyReceiverStateResponding;
   const factory NearbyReceiverState.connected() = NearbyReceiverStateConnected;
-  const factory NearbyReceiverState.receiving() = NearbyReceiverStateReceiving;
   const factory NearbyReceiverState.success(String dataName) =
       NearbyReceiverStateSuccess;
   const factory NearbyReceiverState.failed(String message) =
@@ -39,10 +38,6 @@ class NearbyReceiverStateResponding extends NearbyReceiverState {
 
 class NearbyReceiverStateConnected extends NearbyReceiverState {
   const NearbyReceiverStateConnected();
-}
-
-class NearbyReceiverStateReceiving extends NearbyReceiverState {
-  const NearbyReceiverStateReceiving();
 }
 
 class NearbyReceiverStateSuccess extends NearbyReceiverState {
