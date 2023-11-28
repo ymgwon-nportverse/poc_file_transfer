@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:poc/src/nearby/application/service/nearby_precondition_resolver.dart';
@@ -33,7 +31,6 @@ abstract base class NearbyPreconditionResolverTemplateMethodImpl
   Future<PreconditionIssueType?> checkAnyIssue() async {
     for (final permission in permissions) {
       final status = await permission.status;
-      log(status.name);
       switch (status) {
         case PermissionStatus.denied:
           return PreconditionIssueType.permissionsNotGranted;

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -111,8 +112,6 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
       return;
     }
 
-    // _transferredData = String.fromCharCodes(bytes!);
-
     _nearby.sendPayload(
       Payload.forSend(
         bytes: bytes,
@@ -204,13 +203,36 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
   }
 
   /// sender은 검증 데이터가 맞는지 확인해야 하므로 receiver 로 부터 응답을 받아서 확인함
-  void _onPayloadReceived(String endpointId, Payload payload) {}
+  ///
+  /// 현재 byte 만 생각하고 코드가 짜여져 있음
+  void _onPayloadReceived(String endpointId, Payload payload) {
+    final result = json.decode(String.fromCharCodes(payload.bytes!));
+    final isSuccess = result['isSuccess'] ?? false;
+    if (isSuccess) {
+      state = const NearbySenderState.success();
+    } else {
+      state = const NearbySenderState.failed('failed data');
+    }
+  }
 
   /// sender은 검증 데이터가 맞는지 확인해야 하므로 receiver 로 부터 응답을 받아서 확인함
   void _onPayloadTransferUpdate(
     String endpointId,
     PayloadTransferUpdate payloadTransferUpdate,
-  ) {}
+  ) {
+    switch (payloadTransferUpdate.status) {
+      case PayloadStatus.none:
+        break;
+      case PayloadStatus.inProgress:
+        break;
+      case PayloadStatus.success:
+        break;
+      case PayloadStatus.failure:
+        state = const NearbySenderState.failed('failed');
+      case PayloadStatus.canceled:
+        state = const NearbySenderState.failed('canceled');
+    }
+  }
 
   /// API에는 존재하나, 현재는 크게 필요성을 못느껴서 없애도 될거 같다는 생각이 듬
   void _onBandwidthChanged(

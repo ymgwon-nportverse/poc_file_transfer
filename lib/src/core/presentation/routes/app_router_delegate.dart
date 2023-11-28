@@ -8,14 +8,15 @@ import 'package:poc/src/nearby/presentation/dialogs/nearby_precondition_bluetoot
 import 'package:poc/src/nearby/presentation/dialogs/nearby_precondition_denied_permission_dialog.dart';
 import 'package:poc/src/nearby/presentation/dialogs/nearby_precondition_permission_dialog.dart';
 import 'package:poc/src/nearby/presentation/nearby_screen.dart';
+import 'package:poc/src/nearby/presentation/receiver/nearby_receiver_screen.dart';
 import 'package:poc/src/nearby/presentation/receiver/widgets/bottom_sheets/nearby_receive_confirm_bottom_sheet.dart';
 import 'package:poc/src/nearby/presentation/receiver/widgets/dialogs/nearby_receive_failure_dialog.dart';
 import 'package:poc/src/nearby/presentation/receiver/widgets/dialogs/nearby_receive_success_dialog.dart';
-import 'package:poc/src/nearby/presentation/receiver/nearby_receive_screen.dart';
-import 'package:poc/src/nearby/presentation/sender/nearby_send_screen.dart';
+import 'package:poc/src/nearby/presentation/sender/nearby_sender_screen.dart';
 import 'package:poc/src/nearby/presentation/sender/widgets/bottom_sheets/nearby_send_confirm_bottom_sheet.dart';
 import 'package:poc/src/nearby/presentation/sender/widgets/dialogs/nearby_send_interrupt_dialog.dart';
 import 'package:poc/src/nearby/presentation/sender/widgets/dialogs/nearby_send_rejection_dialog.dart';
+import 'package:poc/src/nearby/presentation/sender/widgets/dialogs/nearby_send_success_dialog.dart';
 import 'package:poc/src/nearby/presentation/sender/widgets/dialogs/not_yet_implemented_dialog.dart';
 
 class AppRouterDelegate extends RouterDelegate<Object>
@@ -85,7 +86,7 @@ class AppRouterDelegate extends RouterDelegate<Object>
           case '/nearby/receive':
             return MaterialPageRoute(
               settings: const RouteSettings(name: '/nearby/receive'),
-              builder: (_) => const NearbyReceiveScreen(),
+              builder: (_) => const NearbyReceiverScreen(),
             );
           case '/nearby/receive/confirm':
             final arguments = settings.arguments as Map<String, dynamic>;
@@ -139,7 +140,7 @@ class AppRouterDelegate extends RouterDelegate<Object>
           case '/nearby/send':
             return MaterialPageRoute(
               settings: const RouteSettings(name: '/nearby/send'),
-              builder: (_) => const NearbySendScreen(),
+              builder: (_) => const NearbySenderScreen(),
             );
           case '/nearby/send/remote':
             return DialogRoute(
@@ -168,6 +169,14 @@ class AppRouterDelegate extends RouterDelegate<Object>
               useSafeArea: true,
               barrierDismissible: true,
               builder: (context) => const NearbySendRejectionDialog(),
+            );
+          case '/nearby/send/success':
+            return DialogRoute(
+              settings: const RouteSettings(name: '/nearby/send/success'),
+              context: context,
+              useSafeArea: true,
+              barrierDismissible: true,
+              builder: (context) => const NearbySendSuccessDialog(),
             );
           case '/nearby/send/interrupt':
             final arguments = settings.arguments as Map<String, dynamic>;

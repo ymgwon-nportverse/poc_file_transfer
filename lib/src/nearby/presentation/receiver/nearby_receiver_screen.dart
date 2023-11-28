@@ -6,8 +6,8 @@ import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_state.d
 import 'package:poc/src/nearby/di.dart';
 
 /// 데이터 전송 받기 화면
-class NearbyReceiveScreen extends ConsumerWidget {
-  const NearbyReceiveScreen({super.key});
+class NearbyReceiverScreen extends ConsumerWidget {
+  const NearbyReceiverScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,9 +43,12 @@ class NearbyReceiveScreen extends ConsumerWidget {
       (previous, current) {
         switch (current) {
           case NearbyReceiverStateResponding():
-            final concatenatedName = current.connectionInfo.endpointName;
-            final userName = concatenatedName.split('|')[0];
-            final dataName = concatenatedName.split('|')[1];
+
+            /// REF: 화면에 보여주기 위해 endpointName 이 userName|dataName 형태로 들어온다고 가정하고 있음
+            final concatenatedName =
+                current.connectionInfo.endpointName.split('|');
+            final userName = concatenatedName.first;
+            final dataName = concatenatedName.last;
 
             context.navigator.pushNamed<bool>(
               '/nearby/receive/confirm',
@@ -68,16 +71,12 @@ class NearbyReceiveScreen extends ConsumerWidget {
                 }
               },
             );
-          case NearbyReceiverStateConnected() || NearbyReceiverStateReceiving():
+          case NearbyReceiverStateConnected():
             context.navigator
                 .popUntil((route) => route.settings.name == '/nearby/receive');
             context.navigator.pushNamed(
               '/nearby/receive/process',
-              arguments: {
-                'message': current is NearbyReceiverStateConnected
-                    ? '연결중...'
-                    : '데이터 받는중...',
-              },
+              arguments: {'message': '연결중...'},
             );
           case NearbyReceiverStateSuccess():
             context.navigator
@@ -88,8 +87,9 @@ class NearbyReceiveScreen extends ConsumerWidget {
                 'dataName': current.dataName,
               },
             ).then(
-              (_) => context.navigator
-                  .popUntil((route) => route.settings.name == '/nearby'),
+              (_) => context.navigator.popUntil(
+                (route) => route.settings.name == '/nearby',
+              ),
             );
           case NearbyReceiverStateFailed():
             context.navigator
