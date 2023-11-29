@@ -80,13 +80,14 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
       endpointId,
       onPayloadReceived: _onPayloadReceived,
       onPayloadTransferUpdate: _onPayloadTransferUpdate,
+      isDiscovery: false,
     );
 
     state = const NearbyReceiverState.connected();
   }
 
   Future<void> rejectConnection(String endpointId) async {
-    await _nearby.rejectConnection(endpointId);
+    await _nearby.rejectConnection(endpointId, isDiscovery: false);
     state = NearbyReceiverState.advertising(_userName);
   }
 

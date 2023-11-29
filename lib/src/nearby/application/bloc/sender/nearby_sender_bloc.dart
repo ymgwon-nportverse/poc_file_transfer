@@ -146,6 +146,7 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
       endpointId,
       onPayloadReceived: _onPayloadReceived,
       onPayloadTransferUpdate: _onPayloadTransferUpdate,
+      isDiscovery: true,
     );
   }
 

@@ -150,6 +150,7 @@ class NearbyImpl implements Nearby {
   @override
   Future<void> acceptConnection(
     String endpointId, {
+    required bool isDiscovery,
     required OnPayloadReceived onPayloadReceived,
     required OnPayloadTransferUpdate onPayloadTransferUpdate,
   }) {
@@ -158,7 +159,10 @@ class NearbyImpl implements Nearby {
 
     return _channel.invokeMethod(
       'acceptConnection',
-      <String, dynamic>{'endpointId': endpointId},
+      <String, dynamic>{
+        'endpointId': endpointId,
+        'isDiscovery': isDiscovery,
+      },
     );
   }
 
@@ -185,11 +189,15 @@ class NearbyImpl implements Nearby {
   }
 
   @override
-  Future<void> rejectConnection(String endpointId) {
+  Future<void> rejectConnection(
+    String endpointId, {
+    required bool isDiscovery,
+  }) {
     return _channel.invokeMethod(
       'rejectConnection',
       <String, dynamic>{
         'endpointId': endpointId,
+        'isDiscovery': isDiscovery,
       },
     );
   }
