@@ -98,7 +98,7 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
       concatenatedName,
       endpointId,
       onBandwidthChanged: _onBandwidthChanged,
-      onConnectionInitiated: _onConnectionInitiatedDiscoverer,
+      onConnectionInitiated: _onConnectionInitiated,
       onConnectionResult: _onConnectionResult,
       onDisconnected: _onDisconnected,
     );
@@ -140,7 +140,7 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
   /// 연결 요청을 보낸 입장에서 두 번 확인하게 할 필요 없으므로 따로 처리함
   ///
   /// 여기서는 상태를 처리하지 않고 [_onConnectionResult] 에서 상태를 처리함
-  Future<void> _onConnectionInitiatedDiscoverer(
+  Future<void> _onConnectionInitiated(
       String endpointId, ConnectionInfo connectionInfo) async {
     await _nearby.acceptConnection(
       endpointId,

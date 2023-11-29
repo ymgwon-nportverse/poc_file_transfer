@@ -7,7 +7,7 @@ import 'package:poc/src/nearby/application/service/exceptions.dart';
 /// **한계점**
 /// - Clean Architecture 를 표방한다면, 어떤 구현을 의도하는지 인터페이스에서 알 수 없어야 하나
 ///   이 프로젝트는 해당 기술에 상당히 의존적임을 interface에서 이미 나타내고 있음.
-class NearbyImpl implements Nearby {
+final class NearbyImpl implements Nearby {
   /// constructor 에서 [MethodChannel] 을 선택적으로 주입할 수 있도록 처리한 이유는
   /// 테스트 코드를 작성할 때 사용하기 위해서임.
   NearbyImpl({MethodChannel? channel})
@@ -19,10 +19,9 @@ class NearbyImpl implements Nearby {
   final MethodChannel _channel;
 
   /// [startAdvertising] 혹은 [requestConnection] 하는 경우의 callback 들
-  OnConnectionInitiated? _advertiseConnectionInitiated,
-      _discoverConnectionInitiated;
-  OnConnectionResult? _advertiseConnectionResult, _discoverConnectionResult;
-  OnDisconnected? _advertiseDisconnected, _discoverDisconnected;
+  OnConnectionInitiated? _onConnectionInitiated;
+  OnConnectionResult? _onConnectionResult;
+  OnDisconnected? _onDisconnected;
 
   /// [startDiscovery] 하는 경우의 callback 들
   OnEndpointFound? _onEndpointFound;
@@ -47,18 +46,12 @@ class NearbyImpl implements Nearby {
         // step 2)
         // 각 state에 맞게 호출해야할 함수 처리
         switch (methodEvent) {
-          case MethodEvent.onAdvertiseConnectionInitiated:
-            _handleOnAdvertiseConnectionInitiated(args);
-          case MethodEvent.onAdvertiseConnectionResult:
-            _handleOnAdvertiseConnectionResult(args);
-          case MethodEvent.onAdvertiseDisconnected:
-            _handleOnAdvertiseDisconnected(args);
-          case MethodEvent.onDiscoveryConnectionInitiated:
-            _handleOnDiscoveryConnectionInitiated(args);
-          case MethodEvent.onDiscoveryConnectionResult:
-            _handleOnDiscoveryConnectionResult(args);
-          case MethodEvent.onDiscoveryDisconnected:
-            _handleOnDiscoveryDisconnected(args);
+          case MethodEvent.onConnectionInitiated:
+            _handleOnConnectionInitiated(args);
+          case MethodEvent.onConnectionResult:
+            _handleOnConnectionResult(args);
+          case MethodEvent.onDisconnected:
+            _handleOnDisconnected(args);
           case MethodEvent.onEndpointFound:
             _handleOnEndpointFound(args);
           case MethodEvent.onEndpointLost:
@@ -107,9 +100,9 @@ class NearbyImpl implements Nearby {
     required OnConnectionResult onConnectionResult,
     required OnDisconnected onDisconnected,
   }) async {
-    _advertiseConnectionInitiated = onConnectionInitiated;
-    _advertiseConnectionResult = onConnectionResult;
-    _advertiseDisconnected = onDisconnected;
+    _onConnectionInitiated = onConnectionInitiated;
+    _onConnectionResult = onConnectionResult;
+    _onDisconnected = onDisconnected;
     try {
       await _channel.invokeMethod(
         'startAdvertising',
@@ -158,7 +151,9 @@ class NearbyImpl implements Nearby {
 
     return _channel.invokeMethod(
       'acceptConnection',
-      <String, dynamic>{'endpointId': endpointId},
+      <String, dynamic>{
+        'endpointId': endpointId,
+      },
     );
   }
 
@@ -171,9 +166,9 @@ class NearbyImpl implements Nearby {
     required OnConnectionResult onConnectionResult,
     required OnDisconnected onDisconnected,
   }) {
-    _discoverConnectionInitiated = onConnectionInitiated;
-    _discoverConnectionResult = onConnectionResult;
-    _discoverDisconnected = onDisconnected;
+    _onConnectionInitiated = onConnectionInitiated;
+    _onConnectionResult = onConnectionResult;
+    _onDisconnected = onDisconnected;
 
     return _channel.invokeMethod(
       'requestConnection',
@@ -224,13 +219,13 @@ class NearbyImpl implements Nearby {
     );
   }
 
-  void _handleOnAdvertiseConnectionInitiated(Map<dynamic, dynamic> args) {
+  void _handleOnConnectionInitiated(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
     String endpointName = args['endpointName'] ?? '-1';
     String authenticationDigits = args['authenticationDigits'] ?? '-1';
     bool isIncomingConnection = args['isIncomingConnection'] ?? false;
 
-    _advertiseConnectionInitiated?.call(
+    _onConnectionInitiated?.call(
       endpointId,
       ConnectionInfo(
         endpointName,
@@ -240,47 +235,18 @@ class NearbyImpl implements Nearby {
     );
   }
 
-  void _handleOnAdvertiseConnectionResult(Map<dynamic, dynamic> args) {
+  void _handleOnConnectionResult(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
     ConnectionStatus statusCode = ConnectionStatus.values
         .byName(args['statusCode'] as String? ?? ConnectionStatus.error.name);
 
-    _advertiseConnectionResult?.call(endpointId, statusCode);
+    _onConnectionResult?.call(endpointId, statusCode);
   }
 
-  void _handleOnAdvertiseDisconnected(Map<dynamic, dynamic> args) {
+  void _handleOnDisconnected(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
 
-    _advertiseDisconnected?.call(endpointId);
-  }
-
-  void _handleOnDiscoveryConnectionInitiated(Map<dynamic, dynamic> args) {
-    String endpointId = args['endpointId'] ?? '-1';
-    String endpointName = args['endpointName'] ?? '-1';
-    String authenticationDigits = args['authenticationDigits'] ?? '-1';
-    bool isIncomingConnection = args['isIncomingConnection'] ?? false;
-
-    _discoverConnectionInitiated?.call(
-      endpointId,
-      ConnectionInfo(
-        endpointName,
-        authenticationDigits,
-        isIncomingConnection,
-      ),
-    );
-  }
-
-  void _handleOnDiscoveryConnectionResult(Map<dynamic, dynamic> args) {
-    String endpointId = args['endpointId'] ?? '-1';
-    ConnectionStatus statusCode = ConnectionStatus.values
-        .byName(args['statusCode'] as String? ?? ConnectionStatus.error.name);
-
-    _discoverConnectionResult?.call(endpointId, statusCode);
-  }
-
-  void _handleOnDiscoveryDisconnected(Map<dynamic, dynamic> args) {
-    String endpointId = args['endpointId'] ?? '-1';
-    _discoverDisconnected?.call(endpointId);
+    _onDisconnected?.call(endpointId);
   }
 
   void _handleOnEndpointFound(Map<dynamic, dynamic> args) {
@@ -334,12 +300,9 @@ class NearbyImpl implements Nearby {
 }
 
 enum MethodEvent {
-  onAdvertiseConnectionInitiated,
-  onAdvertiseConnectionResult,
-  onAdvertiseDisconnected,
-  onDiscoveryConnectionInitiated,
-  onDiscoveryConnectionResult,
-  onDiscoveryDisconnected,
+  onConnectionInitiated,
+  onConnectionResult,
+  onDisconnected,
   onEndpointFound,
   onEndpointLost,
   onPayloadReceived,
