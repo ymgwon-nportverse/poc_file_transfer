@@ -76,7 +76,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                     Nearby.getConnectionsClient(this).startAdvertising(
                         (userName)!!,
                         serviceId,
-                        advertiseConnectionLifecycleCallback,
+                        connectionLifecycleCallback,
                         advertisingOptions,
                     ).addOnSuccessListener(
                         OnSuccessListener {
@@ -141,7 +141,7 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                     Nearby.getConnectionsClient(this).requestConnection(
                         (userName)!!,
                         (endpointId)!!,
-                        discoveryConnectionLifecycleCallback,
+                        connectionLifecycleCallback,
                     ).addOnSuccessListener { result.success(true) }
                         .addOnFailureListener { e -> result.error("Failure", e.message, null) }
                 }
@@ -220,67 +220,26 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
         }
     }
 
-    private val advertiseConnectionLifecycleCallback: ConnectionLifecycleCallback =
+    private val connectionLifecycleCallback: ConnectionLifecycleCallback =
         object : ConnectionLifecycleCallback() {
             override fun onConnectionInitiated(
                 endpointId: String,
                 connectionInfo: ConnectionInfo,
             ) {
-                Log.d("nearby_connections", "onAdvertiseConnectionInitiated")
+                Log.d("nearby_connections", "onConnectionInitiated")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
                 args["endpointName"] = connectionInfo.endpointName
                 args["authenticationDigits"] = connectionInfo.authenticationDigits
                 args["isIncomingConnection"] = connectionInfo.isIncomingConnection
-                nearbyChannel.invokeMethod("onAdvertiseConnectionInitiated", args)
+                nearbyChannel.invokeMethod("onConnectionInitiated", args)
             }
 
             override fun onConnectionResult(
                 endpointId: String,
                 connectionResolution: ConnectionResolution,
             ) {
-                Log.d("nearby_connections", "onAdvertiseConnectionResult")
-                val args: MutableMap<String, Any> = HashMap()
-                args["endpointId"] = endpointId
-                var statusCode = -1
-                when (connectionResolution.status.statusCode) {
-                    ConnectionsStatusCodes.STATUS_OK -> statusCode = 0
-                    ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED -> statusCode = 1
-                    ConnectionsStatusCodes.STATUS_ERROR -> statusCode = 2
-                    else -> {}
-                }
-                args["statusCode"] = statusCode
-                nearbyChannel.invokeMethod("onAdvertiseConnectionResult", args)
-            }
-
-            override fun onDisconnected(endpointId: String) {
-                Log.d("nearby_connections", "onAdvertiseDisconnected")
-                val args: MutableMap<String, Any> = HashMap()
-                args["endpointId"] = endpointId
-                nearbyChannel.invokeMethod("onAdvertiseDisconnected", args)
-            }
-        }
-
-    private val discoveryConnectionLifecycleCallback: ConnectionLifecycleCallback =
-        object : ConnectionLifecycleCallback() {
-            override fun onConnectionInitiated(
-                endpointId: String,
-                connectionInfo: ConnectionInfo,
-            ) {
-                Log.d("nearby_connections", "onDiscoveryConnectionInitiated")
-                val args: MutableMap<String, Any> = HashMap()
-                args["endpointId"] = endpointId
-                args["endpointName"] = connectionInfo.endpointName
-                args["authenticationDigits"] = connectionInfo.authenticationDigits
-                args["isIncomingConnection"] = connectionInfo.isIncomingConnection
-                nearbyChannel.invokeMethod("onDiscoveryConnectionInitiated", args)
-            }
-
-            override fun onConnectionResult(
-                endpointId: String,
-                connectionResolution: ConnectionResolution,
-            ) {
-                Log.d("nearby_connections", "onDiscoveryConnectionResult")
+                Log.d("nearby_connections", "onConnectionResult")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
                 var statusCode = "none"
@@ -291,14 +250,14 @@ class MainActivity : FlutterActivity(), MethodChannel.MethodCallHandler {
                     else -> {}
                 }
                 args["statusCode"] = statusCode
-                nearbyChannel.invokeMethod("onDiscoveryConnectionResult", args)
+                nearbyChannel.invokeMethod("onConnectionResult", args)
             }
 
             override fun onDisconnected(endpointId: String) {
-                Log.d("nearby_connections", "onDiscoveryDisconnected")
+                Log.d("nearby_connections", "onDisconnected")
                 val args: MutableMap<String, Any> = HashMap()
                 args["endpointId"] = endpointId
-                nearbyChannel.invokeMethod("onDiscoveryDisconnected", args)
+                nearbyChannel.invokeMethod("onDisconnected", args)
             }
         }
 

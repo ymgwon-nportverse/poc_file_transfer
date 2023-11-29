@@ -41,16 +41,12 @@ abstract interface class Nearby {
   /// 외부 기기 [requestConnection] 을 받았을 때, 연결을 승락하는 명령
   Future<void> acceptConnection(
     String endpointId, {
-    required bool isDiscovery,
     required OnPayloadReceived onPayloadReceived,
     required OnPayloadTransferUpdate onPayloadTransferUpdate,
   });
 
   /// 외부 기기 [requestConnection] 을 받았을 때, 연결을 거절하는 명령
-  Future<void> rejectConnection(
-    String endpointId, {
-    required bool isDiscovery,
-  });
+  Future<void> rejectConnection(String endpointId);
 
   /// 외부 기기에 연결을 요청하는 명령
   Future<void> requestConnection(

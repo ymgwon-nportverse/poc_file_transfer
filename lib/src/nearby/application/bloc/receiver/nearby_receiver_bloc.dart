@@ -57,7 +57,7 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
         _userName,
         strategy,
         onBandwidthChanged: _onBandwidthChanged,
-        onConnectionInitiated: _onConnectionInitiatedAdvertiser,
+        onConnectionInitiated: _onConnectionInitiated,
         onConnectionResult: _onConnectionResult,
         onDisconnected: _onDisconnected,
       );
@@ -80,14 +80,13 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
       endpointId,
       onPayloadReceived: _onPayloadReceived,
       onPayloadTransferUpdate: _onPayloadTransferUpdate,
-      isDiscovery: false,
     );
 
     state = const NearbyReceiverState.connected();
   }
 
   Future<void> rejectConnection(String endpointId) async {
-    await _nearby.rejectConnection(endpointId, isDiscovery: false);
+    await _nearby.rejectConnection(endpointId);
     state = NearbyReceiverState.advertising(_userName);
   }
 
@@ -112,7 +111,7 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
   /// 풀어서 사용해야함을 주의.
   ///
   /// 추가 내용은 [NearbySenderBloc] 의 `requestConnection` 을 참고
-  void _onConnectionInitiatedAdvertiser(
+  void _onConnectionInitiated(
     String endpointId,
     ConnectionInfo connectionInfo,
   ) {
