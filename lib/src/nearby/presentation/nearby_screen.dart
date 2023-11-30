@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poc/src/core/presentation/extensions/extensions.dart';
-import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_event.dart';
-import 'package:poc/src/nearby/application/bloc/sender/nearby_sender_event.dart';
 import 'package:poc/src/nearby/application/service/nearby_precondition_resolver.dart';
 import 'package:poc/src/nearby/di.dart';
 
@@ -31,16 +29,7 @@ class NearbyScreen extends ConsumerWidget {
             ElevatedButton.icon(
               onPressed: () => _checkPreconditionsForSend(
                 ref,
-                onPassed: () => _routeTo(
-                  context,
-                  'send',
-                  onPush: () => ref
-                      .read(nearbySenderBlocProvider.notifier)
-                      .mapEventToState(const NearbySenderEvent.search()),
-                  onReturn: () => ref
-                      .read(nearbySenderBlocProvider.notifier)
-                      .mapEventToState(const NearbySenderEvent.stopAll()),
-                ),
+                onPassed: () => context.navigator.pushNamed('/nearby/send'),
                 onError: (issue) => _showIssuePopup(context, ref, issue),
               ),
               icon: const Icon(Icons.upload),
@@ -49,16 +38,7 @@ class NearbyScreen extends ConsumerWidget {
             ElevatedButton.icon(
               onPressed: () => _checkPreconditionsForSend(
                 ref,
-                onPassed: () => _routeTo(
-                  context,
-                  'receive',
-                  onPush: () => ref
-                      .read(nearbyReceiverBlocProvider.notifier)
-                      .mapEventToState(const NearbyReceiverEvent.advertise()),
-                  onReturn: () => ref
-                      .read(nearbyReceiverBlocProvider.notifier)
-                      .mapEventToState(const NearbyReceiverEvent.stopAll()),
-                ),
+                onPassed: () => context.navigator.pushNamed('/nearby/receive'),
                 onError: (issue) => _showIssuePopup(context, ref, issue),
               ),
               icon: const Icon(Icons.download),
@@ -81,7 +61,7 @@ class NearbyScreen extends ConsumerWidget {
       return onPassed.call();
     }
 
-    onError.call(issue);
+    return onError.call(issue);
   }
 
   void _showIssuePopup(
@@ -100,24 +80,5 @@ class NearbyScreen extends ConsumerWidget {
       case PreconditionIssueType.bluetoothOff:
         context.navigator.pushNamed('/nearby/precondition/bluetooth');
     }
-  }
-
-  /// Navigator로 다음 페이지 이동시키고 이동 이후 해야할 작업 처리.
-  ///
-  /// [onReturn] callback 을 만든 이유는 화면이 stack 에서 사라질 때, 처리해줘야하는 로직을
-  /// [StatefulWidget] 의 `onDispose` 나 `onDeactivate` 에서 처리하려면 오류 발생하기
-  /// 때문에 오류방지하기 위해 stack에서 돌아왔을때 처리
-  void _routeTo(
-    BuildContext context,
-    String path, {
-    required VoidCallback onPush,
-    required VoidCallback onReturn,
-  }) {
-    context.navigator.pushNamed('/nearby/$path').then(
-          // 다시 이 화면으로 돌아왔을 때 callback
-          (_) => onReturn.call(),
-        );
-
-    onPush.call();
   }
 }

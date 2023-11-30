@@ -7,18 +7,16 @@ import 'package:poc/src/nearby/application/bloc/sender/nearby_sender_state.dart'
 import 'package:poc/src/nearby/application/service/nearby.dart';
 import 'package:poc/src/nearby/application/service/user_info_fetcher.dart';
 import 'package:poc/src/nearby/application/service/exceptions.dart';
+import 'package:poc/src/nearby/di.dart';
 
-class NearbySenderBloc extends StateNotifier<NearbySenderState> {
-  NearbySenderBloc(
-    this._nearby,
-    this._infoFetcher,
-  ) : super(const NearbySenderState.none()) {
-    // User 정보를 이후에 계속 사용하기 위해 initializer에서 받아옴
-    _loadUserName();
-  }
-
-  final Nearby _nearby;
-  final UserInfoFetcher _infoFetcher;
+// REF: StateNotifier -> Notifier 로 migration 하면서
+//      `WidgetRef`를 이용한 의존성 주입을 사용할 수 없게 되었음.
+//      이로 인해 의존성 사슬이 application-bloc 으로 모이게 되는 듯한 그림이 만들어짐.
+//      하지만, bloc 에서도 Provider를 이용하여 의존성을 가져오기 때문에,
+//      언제든 의존성 주입이 가능함. 그로 인해, testable 한 구조는 계속 가져가기 때문에 문제 없음.
+class NearbySenderBloc extends AutoDisposeNotifier<NearbySenderState> {
+  late final Nearby _nearby;
+  late final UserInfoFetcher _infoFetcher;
 
   /// 데이터 보낼 endpoint id
   ///
@@ -30,22 +28,21 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
   /// 이것이 잘 구현되어 있는지 확인 필요
   String? _targetEndpointId;
 
-  /// REF: 임시 저장을 위한 변수
-  /// 추후 API 수정되며 사라질 것임
-  /// TODO: 현재는 bytes 단위만 확인했으므로 file 도 확인해보고 이 TODO 삭제하기
-  // String? _transferredData;
+  @override
+  NearbySenderState build() {
+    _nearby = ref.watch(nearbyProvider);
+    _infoFetcher = ref.watch(infoFetcherProvider);
+    _loadUserName();
+    ref.onDispose(() {
+      stopAll();
+    });
+    return const NearbySenderState.none();
+  }
 
   /// [advertise] / [discover] 할 때, 상대에게 누군지 알려주기 위한 값.
   ///
   /// 이 BLoC 클래스 생성하며, initializer 에서 이름을 업데이트하게 되어있음.
-  ///
-  /// c.f.)
-  ///
-  /// - `unidentified` 라는 이름은 부적절함. 추후 수정하는게 좋을 것으로 보임.
-  ///   - 이는 정보를 불러오는 함수가 [FutureOr], 즉 비동기일 가능성이 큰 함수이기 때문에
-  /// 불러오기 전까진 [_userName]이 null 값 일 수 밖에 없고, 이는 다른 메소드에서 사용될 때
-  /// nullable 확인을 해야하는 귀찮은 상황이 발생할 수 있기 때문에 default 값을 선정함.
-  String _userName = 'unidentified';
+  String? _userName;
 
   /// Event를 받으면 State 로 전환하는 함수
   ///
@@ -61,15 +58,17 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
   /// `송신자(sender)` 가
   /// `수신자(receiver)` 를 찾기 위한 함수
   Future<void> discover(Strategy strategy) async {
+    _userName ??= await _infoFetcher.info;
+
     try {
       await _nearby.startDiscovery(
-        _userName,
+        _userName!,
         strategy,
         onEndpointFound: _onEndpointFound,
         onEndpointLost: _onEndpointLost,
       );
       // result 2: 찾고 있는 것으로 상태 변경
-      state = NearbySenderState.discovering(_userName, []);
+      state = NearbySenderState.discovering(_userName!, []);
     } on AlreadyInUseException {
       state = const NearbySenderState.failed('already discovering');
     }
@@ -77,7 +76,7 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
 
   void stopDiscovery() {
     _nearby.stopDiscovery();
-    state = NearbySenderState.none(_userName);
+    state = NearbySenderState.none(_userName!);
   }
 
   /// 연결 요청 보내기
@@ -125,14 +124,14 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
     _nearby.stopAllEndpoints();
     _nearby.stopDiscovery();
 
-    state = NearbySenderState.none(_userName);
+    state = NearbySenderState.none(_userName!);
   }
 
   /// [_userName] 을 이후에 사용할 수 있도록 적제해놓고, 상태 초기에 부족했던 사용자 이름을
   /// state 에 반영함
   Future<void> _loadUserName() async {
-    _userName = await _infoFetcher.info;
-    state = NearbySenderState.none(_userName);
+    _userName ??= await _infoFetcher.info;
+    state = NearbySenderState.none(_userName!);
   }
 
   /// 연결 요청을 보낸 기기(=discoverer) 에서 연결 시작 로직
@@ -170,7 +169,7 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
   ) {
     _targetEndpointId = null;
     _nearby.disconnectFromEndpoint(endpointId);
-    state = NearbySenderState.none(_userName);
+    state = NearbySenderState.none(_userName!);
   }
 
   void _onEndpointFound(
@@ -182,7 +181,7 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
       case NearbySenderStateDiscovering(devices: var devices):
         final newDevice = NearbyDevice(id: endpointId, name: endpointName);
         if (!devices.contains(newDevice)) {
-          state = NearbySenderState.discovering(_userName,
+          state = NearbySenderState.discovering(_userName!,
               [...devices, NearbyDevice(id: endpointId, name: endpointName)]);
         }
       default:
@@ -195,8 +194,10 @@ class NearbySenderBloc extends StateNotifier<NearbySenderState> {
   ) {
     switch (state) {
       case NearbySenderStateDiscovering(devices: var devices):
-        state = NearbySenderState.discovering(_userName,
-            devices.where((element) => element.id != endpointId).toList());
+        state = NearbySenderState.discovering(
+          _userName!,
+          devices.where((element) => element.id != endpointId).toList(),
+        );
       default:
         break;
     }

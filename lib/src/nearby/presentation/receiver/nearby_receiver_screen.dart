@@ -6,11 +6,25 @@ import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_state.d
 import 'package:poc/src/nearby/di.dart';
 
 /// 데이터 전송 받기 화면
-class NearbyReceiverScreen extends ConsumerWidget {
+class NearbyReceiverScreen extends ConsumerStatefulWidget {
   const NearbyReceiverScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NearbyReceiverScreen> createState() =>
+      _NearbyReceiverScreenState();
+}
+
+class _NearbyReceiverScreenState extends ConsumerState<NearbyReceiverScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ref
+        .read(nearbyReceiverBlocProvider.notifier)
+        .mapEventToState(const NearbyReceiverEvent.advertise());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     _reserveRouteInEachNearbyState(context, ref);
 
     return Scaffold(

@@ -16,23 +16,17 @@ import 'package:poc/src/nearby/infrastructure/service/nearby_precondition_resolv
 import 'package:poc/src/nearby/infrastructure/service/user_info_fetcher_impl.dart';
 
 final nearbySenderBlocProvider =
-    StateNotifierProvider<NearbySenderBloc, NearbySenderState>(
-  (ref) => NearbySenderBloc(
-    ref.watch(nearbyProvider),
-    ref.watch(infoFetcherProvider),
-  ),
+    NotifierProvider.autoDispose<NearbySenderBloc, NearbySenderState>(
+  NearbySenderBloc.new,
 );
 
 final nearbyReceiverBlocProvider =
-    StateNotifierProvider<NearbyReceiverBloc, NearbyReceiverState>(
-  (ref) => NearbyReceiverBloc(
-    ref.watch(nearbyProvider),
-    ref.watch(infoFetcherProvider),
-  ),
+    NotifierProvider.autoDispose<NearbyReceiverBloc, NearbyReceiverState>(
+  NearbyReceiverBloc.new,
 );
 
 final nearbyProvider = Provider<Nearby>(
-  (ref) => NearbyImpl(),
+  (_) => NearbyImpl(),
 );
 
 final nearbyPreconditionResolverProvider = Provider<NearbyPreconditionResolver>(
@@ -56,10 +50,10 @@ final infoFetcherProvider = Provider<UserInfoFetcher>(
   ),
 );
 
-final deviceInfoProvider = Provider((ref) => DeviceInfoPlugin());
+final deviceInfoProvider = Provider((_) => DeviceInfoPlugin());
 
 /// 현재 fake implementation 으로 할당되어 있는 것에 주의.
 ///
 /// fake implementation 이 아니라면 주석 삭제 해야함.
 final myAssetsRepositoryProvider =
-    Provider<MyAssetRepository>((ref) => MyAssetRepositoryFakeImpl());
+    Provider<MyAssetRepository>((_) => MyAssetRepositoryFakeImpl());
