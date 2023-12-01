@@ -12,10 +12,25 @@ import 'package:poc/src/nearby/presentation/sender/ui_state/ui_send_property.dar
 import 'package:poc/src/nearby/presentation/sender/widgets/sections/nearby_send_data_section.dart';
 import 'package:poc/src/nearby/presentation/sender/widgets/sections/nearby_send_receivers_section.dart';
 
-class NearbySenderScreen extends ConsumerWidget {
+class NearbySenderScreen extends ConsumerStatefulWidget {
   const NearbySenderScreen({super.key});
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NearbySenderScreen> createState() => _NearbySenderScreenState();
+}
+
+class _NearbySenderScreenState extends ConsumerState<NearbySenderScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    ref
+        .read(nearbySenderBlocProvider.notifier)
+        .mapEventToState(const NearbySenderEvent.search());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     _reserveRouteForEachNearbyState(context, ref);
 
     return Scaffold(

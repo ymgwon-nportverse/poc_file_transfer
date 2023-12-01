@@ -7,18 +7,16 @@ import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_state.d
 import 'package:poc/src/nearby/application/service/exceptions.dart';
 import 'package:poc/src/nearby/application/service/nearby.dart';
 import 'package:poc/src/nearby/application/service/user_info_fetcher.dart';
+import 'package:poc/src/nearby/di.dart';
 
-class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
-  NearbyReceiverBloc(
-    this._nearby,
-    this._infoFetcher,
-  ) : super(const NearbyReceiverState.none()) {
-    // User 정보를 이후에 계속 사용하기 위해 initializer에서 받아옴
-    _loadUserName();
-  }
-
-  final Nearby _nearby;
-  final UserInfoFetcher _infoFetcher;
+// REF: StateNotifier -> Notifier 로 migration 하면서
+//      `WidgetRef`를 이용한 의존성 주입을 사용할 수 없게 되었음.
+//      이로 인해 의존성 사슬이 application-bloc 으로 모이게 되는 듯한 그림이 만들어짐.
+//      하지만, bloc 에서도 Provider를 이용하여 의존성을 가져오기 때문에,
+//      언제든 의존성 주입이 가능함. 그로 인해, testable 한 구조는 계속 가져가기 때문에 문제 없음.
+class NearbyReceiverBloc extends AutoDisposeNotifier<NearbyReceiverState> {
+  late final Nearby _nearby;
+  late final UserInfoFetcher _infoFetcher;
 
   /// [advertise] 할 때, 상대에게 누군지 알려주기 위한 값.
   ///
@@ -30,12 +28,23 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
   ///   - 이는 정보를 불러오는 함수가 [FutureOr], 즉 비동기일 가능성이 큰 함수이기 때문에
   /// 불러오기 전까진 [_userName]이 null 값 일 수 밖에 없고, 이는 다른 메소드에서 사용될 때
   /// nullable 확인을 해야하는 귀찮은 상황이 발생할 수 있기 때문에 default 값을 선정함.
-  String _userName = 'unidentified';
+  String? _userName;
 
   /// REF: 임시 저장을 위한 변수
   /// 추후 API 수정되며 사라질 것임
   /// TODO: 현재는 bytes 단위만 확인했으므로 file 도 확인해보고 이 TODO 삭제하기
   String? _transferredData;
+
+  @override
+  NearbyReceiverState build() {
+    _nearby = ref.watch(nearbyProvider);
+    _infoFetcher = ref.watch(infoFetcherProvider);
+    _loadUserName();
+    ref.onDispose(() {
+      stopAll();
+    });
+    return const NearbyReceiverState.none();
+  }
 
   /// Event를 받으면 State 로 전환하는 함수
   ///
@@ -51,10 +60,12 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
   /// `수신자(receiver)` 가
   /// `전송자(sender)` 에게 자신을 찾을 수 있도록 알리는 함수
   Future<void> advertise(Strategy strategy) async {
+    _userName ??= await _infoFetcher.info;
+
     try {
       // step 2: advertising
       await _nearby.startAdvertising(
-        _userName,
+        _userName!,
         strategy,
         onBandwidthChanged: _onBandwidthChanged,
         onConnectionInitiated: _onConnectionInitiated,
@@ -63,7 +74,7 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
       );
 
       // result 2: 홍보 중으로 상태 변경
-      state = NearbyReceiverState.advertising(_userName);
+      state = NearbyReceiverState.advertising(_userName!);
     } on AlreadyInUseException {
       // 에러 발생시 failed 상태로 만들기
       state = const NearbyReceiverState.failed('already advertising');
@@ -72,7 +83,7 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
 
   void stopAdvertising() {
     _nearby.stopAdvertising();
-    state = NearbyReceiverState.none(_userName);
+    state = NearbyReceiverState.none(_userName!);
   }
 
   Future<void> acceptConnection(String endpointId) async {
@@ -87,21 +98,21 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
 
   Future<void> rejectConnection(String endpointId) async {
     await _nearby.rejectConnection(endpointId);
-    state = NearbyReceiverState.advertising(_userName);
+    state = NearbyReceiverState.advertising(_userName!);
   }
 
   void stopAll() {
     _nearby.stopAllEndpoints();
     _nearby.stopDiscovery();
 
-    state = NearbyReceiverState.none(_userName);
+    state = NearbyReceiverState.none(_userName!);
   }
 
   /// [_userName] 을 이후에 사용할 수 있도록 적제해놓고, 상태 초기에 부족했던 사용자 이름을
   /// state 에 반영함
   Future<void> _loadUserName() async {
     _userName = await _infoFetcher.info;
-    state = NearbyReceiverState.none(_userName);
+    state = NearbyReceiverState.none(_userName!);
   }
 
   /// 연결 요청을 받은 기기에서 연결 시작 로직
@@ -138,7 +149,7 @@ class NearbyReceiverBloc extends StateNotifier<NearbyReceiverState> {
     String endpointId,
   ) {
     _nearby.disconnectFromEndpoint(endpointId);
-    state = NearbyReceiverState.none(_userName);
+    state = NearbyReceiverState.none(_userName!);
   }
 
   /// 현재는 bytes 만 보내는 것을 상정하고 있음에 주의
