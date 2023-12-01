@@ -13,7 +13,7 @@ protocol FlutterPlatformChannelDelegate {
     
     var flutterViewController:FlutterViewController! { get }
     
-    var flutterMethodChannel :FlutterMethodChannel! { get } 
+    static var flutterMethodChannel :FlutterMethodChannel! { get } 
     
     func callHandler() 
     

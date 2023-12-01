@@ -10,138 +10,150 @@ import NearbyConnections
 import UIKit
 import Flutter
 
-var nearByConnectionHandler:NearByConnectionHandler = NearByConnectionHandler()
-
 class FlutterPlatformChannelBridge {
     var callName: FlutterNearbyMethodCallName?
     var args : Dictionary<String, Any>?
     var channel : FlutterMethodChannel
+    var result : FlutterResult
     
-    init(callName: FlutterNearbyMethodCallName? = nil, args: Dictionary<String, Any>? = nil, channel: FlutterMethodChannel) {
+    init(callName: FlutterNearbyMethodCallName? = nil, args: Dictionary<String, Any>? = nil, channel: FlutterMethodChannel,result:@escaping FlutterResult) {
         self.callName = callName
         self.args = args
         self.channel = channel
+        self.result = result
     }
     
-  func  doAction(){
-        callName?.methodCall.callback(args, channel: channel)
+    func  doAction(){
+        print("🍏🍏🍏 callname => \(callName?.rawValue)")
+        callName?.methodCall.callback(args, channel: channel,result: result)
     }
     
-}
-
-class StartDiscovery : FlutterNearbyMethodCallDelegate{
-    func callback(_ args: Dictionary<String, Any>?, channel: FlutterMethodChannel) {
-        let userName = args?["userName"] as? String
-        let strategy = args?["strategy"] as? Int
-        let serviceId = args?["serviceId"] as? String
-        nearByConnectionHandler.invalidateDiscovery(isEnabled: true)
-        
-    //todo invoke
-    }
-    
-    func printCallBackName(name: String) {
-        print("printCallBackName => \(name)")
-    }
 }
 
 class StartAdvertising :FlutterNearbyMethodCallDelegate{
     
-    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel) { 
-        nearByConnectionHandler.invalidateAdvertising(isEnabled: true)
-        
-        //todo invoke
+    var nearByConnectionController: NearByConnectionController = NearByConnectionController.shared
+    
+    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel,result:@escaping FlutterResult) {
+        nearByConnectionController.invalidateAdvertising(isEnabled: true)
+        result(true)
     }
-    
-    func printCallBackName(name: String) {print("callback name => \(name)")}
-    
 }
-class StopDiscovery :FlutterNearbyMethodCallDelegate{
-    
-    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel) {
-        nearByConnectionHandler.invalidateDiscovery(isEnabled: false)
-        channel.invokeMethod(FlutterInvokeMethodEvent.onDiscoveryDisconnected.eventName, arguments: nil)}
-    
-    func printCallBackName(name: String) {print("callback name => \(name)")}
-    
-}
+
 class StopAdvertising :FlutterNearbyMethodCallDelegate{
     
-    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel) {
-        nearByConnectionHandler.invalidateAdvertising(isEnabled: false)
-        channel.invokeMethod(FlutterInvokeMethodEvent.onAdvertiseDisconnected.eventName, arguments: nil)
+    var nearByConnectionController: NearByConnectionController = NearByConnectionController.shared
+    
+    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel,result:@escaping FlutterResult) {
+        nearByConnectionController.invalidateAdvertising(isEnabled: false)
+        result(true)
     }
-    
-    func printCallBackName(name: String) { print("callback name => \(name)")}
-    
 }
+
+class StartDiscovery : FlutterNearbyMethodCallDelegate{
+    
+    var nearByConnectionController: NearByConnectionController = NearByConnectionController.shared
+    
+    func callback(_ args: Dictionary<String, Any>?, channel: FlutterMethodChannel,result:@escaping FlutterResult) {
+        nearByConnectionController.invalidateDiscovery(isEnabled: true)
+        result(true)
+    }
+}
+
+class StopDiscovery :FlutterNearbyMethodCallDelegate{
+    var nearByConnectionController: NearByConnectionController = NearByConnectionController.shared
+    
+    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel,result:@escaping FlutterResult) {
+        nearByConnectionController.invalidateDiscovery(isEnabled: false)
+        result(true)
+    }
+}
+
 class StopAllEndpoints :FlutterNearbyMethodCallDelegate{
     
-    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel){
-        nearByConnectionHandler.stopAllEndpoints()
-        channel.invokeMethod(FlutterInvokeMethodEvent.onEndpointLost.eventName, arguments: nil)
+    var nearByConnectionController: NearByConnectionController = NearByConnectionController.shared
+    
+    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel,result:@escaping FlutterResult){
+        nearByConnectionController.stopAllEndpoints()
+        result(true)
     }
-    
-    func printCallBackName(name: String) {print("callback name => \(name)")  }
-    
 }
+
 class DisconnectFromEndpoint : FlutterNearbyMethodCallDelegate{
+    var nearByConnectionController: NearByConnectionController = NearByConnectionController.shared
     
-    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel) {
+    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel,result:@escaping FlutterResult) {
         let endpointId = args?["endpointId"] as? String
-        nearByConnectionHandler.disconnect(from: endpointId!)
-        
-        channel.invokeMethod(FlutterInvokeMethodEvent.onEndpointLost.eventName, arguments: ["endpointId":endpointId])
+        nearByConnectionController.disconnect(from: endpointId!)
+        result(true)
     }
-    func printCallBackName(name: String) {print("callback name => \(name)")}
-    
 }
+
 class AcceptConnection : FlutterNearbyMethodCallDelegate{
     
-    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel) {
-        let endpointId = args?["endpointId"] as? String
-        nearByConnectionHandler.acceptEndPoint(ep: endpointId!)
-        
-        //todo invoke message  onPayloadReceived,
-    }
-    func printCallBackName(name: String) {print("callback name => \(name)")}
+    var nearByConnectionController: NearByConnectionController = NearByConnectionController.shared
     
+    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel,result:@escaping FlutterResult) {
+        let endpointId = args?["endpointId"] as? String
+        nearByConnectionController.acceptEndPoint(endpointID: endpointId!)
+        result(true)
+    }
 }
+
 class RequestConnection : FlutterNearbyMethodCallDelegate{
     
-    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel) {
-        let endpointId = args?["endpointId"] as? String
-        nearByConnectionHandler.requestConnection(to: endpointId!)
-        //todo invoke message
-    }
-    func printCallBackName(name: String) {print("callback name => \(name)")}
+    var nearByConnectionController: NearByConnectionController = NearByConnectionController.shared
     
+    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel,result:@escaping FlutterResult) {
+        let endpointId = args?["endpointId"] as? String
+        nearByConnectionController.requestConnection(to: endpointId!)
+        result(true)
+    }
 }
+
 class RejectConnection : FlutterNearbyMethodCallDelegate{
     
-    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel) {
-        nearByConnectionHandler.rejectConnection() // todo
+    var nearByConnectionController: NearByConnectionController = NearByConnectionController.shared
+    
+    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel,result:@escaping FlutterResult) {
+        let endpointId = args?["endpointId"] as? String
+        // todo
+        nearByConnectionController.rejection()
+        result(true)
     }
-    func printCallBackName(name: String) {print("callback name => \(name)")}
+    
 }
 
 class SendPayload : FlutterNearbyMethodCallDelegate{
     
-    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel) {
+    var nearByConnectionController: NearByConnectionController = NearByConnectionController.shared
+    
+    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel,result:@escaping FlutterResult) {
+        
+        
         let endpointId = args?["endpointId"] as? String
-        nearByConnectionHandler.sendBytes(to: [endpointId!])
+          let rawPayload = args?["payload"] as? Dictionary<String, Any>
+        //   let filePath = rawPayload?["filePath"] as? String
+        // let myData = Data(bytes.data)
+        let bytes = rawPayload?["bytes"] as!  FlutterStandardTypedData
+        
+        nearByConnectionController.sendPayload(to: [endpointId!], bytes: bytes)
+        
+        result(true)
         
     }
-    func printCallBackName(name: String) {print("callback name => \(name)")}
-    
 }
-
 
 class CancelPayload :FlutterNearbyMethodCallDelegate{
     
-    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel) {
-        let endpointId = args?["endpointId"] as? String
-        nearByConnectionHandler.cancelPayload(to: [endpointId!])
-    }
-    func printCallBackName(name: String) {print("callback name => \(name)")}
+    var nearByConnectionController: NearByConnectionController = NearByConnectionController.shared
     
+    func callback(_ args: Dictionary<String, Any>?,channel: FlutterMethodChannel,result:@escaping FlutterResult) {
+        let endpointId = args?["payloadId"] as? String
+        //todo
+        print("CancelPayload \(args)")
+        // nearByConnectionController.cancelPayload(to: [endpointId!],bytes: nil)
+        result(true)
+    }
 }
+

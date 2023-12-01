@@ -19,7 +19,7 @@ class Constants {
     static let defaultStrategy = Strategy.pointToPoint
     static let defaultAdvertisingState = false
     static let defaultDiscoveryState = false
-    static let bytePayload = "hello world"
+    static let bytePayload = ""
 
 #if os(iOS) || os(watchOS) || os(tvOS)
     static let defaultEndpointName = UIDevice.current.name
@@ -44,12 +44,9 @@ class Constants {
     
     
     // invokeMethod call 부분 ( ios -> flutter )
-    static let  onAdvertiseConnectionInitiated  = "onAdvertiseConnectionInitiated"
-    static let  onAdvertiseConnectionResult  = "onAdvertiseConnectionResult"
-    static let  onAdvertiseDisconnected  = "onAdvertiseDisconnected"
-    static let  onDiscoveryConnectionInitiated  = "onDiscoveryConnectionInitiated"
-    static let  onDiscoveryConnectionResult  = "onDiscoveryConnectionResult"
-    static let  onDiscoveryDisconnected  = "onDiscoveryDisconnected"
+    static let  onConnectionInitiated  = "onConnectionInitiated"
+    static let  onConnectionResult  = "onConnectionResult"
+    static let  onDisconnected  = "onDisconnected"
     static let  onEndpointFound  = "onEndpointFound"
     static let  onEndpointLost  = "onEndpointLost"
     static let  onPayloadReceived  = "onPayloadReceived"

@@ -11,18 +11,37 @@ import NearbyConnections
 struct Payload: Identifiable {
     let id: PayloadID
     var type: PayloadType
-    var status: Status
+    var payloadStatus: PayloadStatus
     let isIncoming: Bool
     let cancellationToken: CancellationToken?
 
-    enum PayloadType {
+    enum PayloadType{
         case bytes, stream, file
     }
-    enum Status {
-        case inProgress(Progress), success, failure, canceled
+    
+    enum PayloadStatus {
+        case inProgress, success, failure, canceled
+    }
+    
+}
+
+extension Payload.PayloadType{
+    var toString:String {
+        switch self{
+        case .bytes: return "bytes"
+        case .stream: return "stream"
+        case .file : return "file"
+        }
     }
 }
 
-
-//let uintInt8List =  call.arguments as! FlutterStandardTypedData
- //      let byte = [UInt8](uintInt8List.data)
+extension Payload.PayloadStatus{
+    var toString:String {
+        switch self{
+        case .inProgress : return "inProgress"
+        case .success : return "success"
+        case .failure : return "failure"
+        case .canceled : return "canceled"
+        }
+    }
+}

@@ -8,57 +8,32 @@
 import Foundation
 import NearbyConnections
 
-enum PayloadType {
-    case none,bytes, stream, file
-}
-
-enum ConnectionStatus {
-    case  connected,
-          rejected,
-          error
-}
-
-enum PayloadStatus {
-    case inProgress(Progress), success, failure, canceled
-}
-
-enum BandwidthQuality {
-    case  unknown,  low,  medium,  high
+enum ConnectionStatus : String {
+    case  connected = "connected"
+    case  rejected = "rejected"
+    case  error = "error"
 }
 
 enum FlutterInvokeMethodEvent {
-    case onAdvertiseConnectionInitiated,
-         onAdvertiseConnectionResult,
-         onAdvertiseDisconnected, // ok
-         
-         onDiscoveryConnectionInitiated,
-         onDiscoveryConnectionResult,
-         onDiscoveryDisconnected, // ok ,  하나만 끊기
-         
-         onEndpointFound, // startDiscovery 관련
-         onEndpointLost, //startDiscovery 관련 ,ok , 전체 끊기
-         
-         onPayloadReceived, // todo byte 용량 제한
-         onPayloadTransferUpdate // todo
+    case onConnectionInitiated,
+         onConnectionResult,
+         onDisconnected,
+         onEndpointFound,
+         onEndpointLost,
+         onPayloadReceived,
+         onPayloadTransferUpdate
 }
 
 extension FlutterInvokeMethodEvent{
-    var eventName:String {
+    var toString:String {
         switch self{
-            
-        case .onAdvertiseConnectionInitiated : return "onAdvertiseConnectionInitiated"
-        case .onAdvertiseConnectionResult : return "onAdvertiseConnectionResult"
-        case .onAdvertiseDisconnected: return "onAdvertiseDisconnected"
-            
-        case .onDiscoveryConnectionInitiated :return "onDiscoveryConnectionInitiated"
-        case .onDiscoveryConnectionResult :return "onDiscoveryConnectionResult"
-        case .onDiscoveryDisconnected: return "onDiscoveryDisconnected"
-            
-        case .onEndpointFound :return "onEndpointFound"
-        case .onEndpointLost :return "onEndpointLost"
-            
-        case .onPayloadReceived: return "onPayloadReceived"
-        case .onPayloadTransferUpdate :return "onPayloadTransferUpdate"
+        case .onConnectionInitiated  :return Constants.onConnectionInitiated
+        case .onConnectionResult :return Constants.onConnectionResult
+        case .onDisconnected :return Constants.onDisconnected
+        case .onEndpointFound :return Constants.onEndpointFound
+        case .onEndpointLost :return Constants.onEndpointLost
+        case .onPayloadReceived: return Constants.onPayloadReceived
+        case .onPayloadTransferUpdate :return Constants.onPayloadTransferUpdate
         }
     }
 }
@@ -79,7 +54,7 @@ enum FlutterNearbyMethodCallName : String {
     case rejectConnection = "rejectConnection"
     
     case sendPayload = "sendPayload"
-    case cancelPayload = "cancelPayload" 
+    case cancelPayload = "cancelPayload"
 }
 
 
@@ -100,3 +75,4 @@ extension FlutterNearbyMethodCallName{
         }
     }
 }
+

@@ -8,7 +8,7 @@
 import Foundation
 import NearbyConnections
 
-extension NearByConnectionHandler: DiscovererDelegate {
+extension NearByConnectionController: DiscovererDelegate {
     func discoverer(_ discoverer: Discoverer, didFind endpointID: EndpointID, with context: Data) {
         guard let endpointName = String(data: context, encoding: .utf8) else {
             return
@@ -18,17 +18,23 @@ extension NearByConnectionHandler: DiscovererDelegate {
             endpointID: endpointID,
             endpointName: endpointName
         )
+
         endpoints.insert(endpoint, at: 0)
         
-        let endpointInfo: [String: Any?] = ["id": UUID().uuidString,"endpointID": endpointID,"endpointName":endpointName]
-        
-        requestConnection(to: endpointID)
+        if(endpoints.isEmpty){
+            // 분기처리 필요 found / lost (중복 처리도 적용)
+        }else{
+            onEndpointFound(endpointId: endpointID, endpointName: endpointName, serviceId: Constants.serviceId)
+        }
+       
     }
     
     func discoverer(_ discoverer: Discoverer, didLose endpointID: EndpointID) {
         guard let index = endpoints.firstIndex(where: { $0.endpointID == endpointID }) else {
             return
         }
+        
+        onEndpointLost(endpointId: endpointID)
         endpoints.remove(at: index)
     }
 }

@@ -10,6 +10,7 @@
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		4D5B7ECE2B1730F5005A7617 /* FlutterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D5B7ECD2B1730F5005A7617 /* FlutterController.swift */; };
 		4D6F4D5D2B0F3EA5005F39DC /* Enum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D5C2B0F3EA5005F39DC /* Enum.swift */; };
 		4D6F4D602B0F3F3C005F39DC /* NearbyConnections in Frameworks */ = {isa = PBXBuildFile; productRef = 4D6F4D5F2B0F3F3C005F39DC /* NearbyConnections */; };
 		4D6F4D622B0F3F41005F39DC /* NearbyCoreAdapter in Frameworks */ = {isa = PBXBuildFile; productRef = 4D6F4D612B0F3F41005F39DC /* NearbyCoreAdapter */; };
@@ -17,24 +18,21 @@
 		4D6F4D692B0F41FF005F39DC /* FlutterPlatformChannelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D672B0F41FF005F39DC /* FlutterPlatformChannelBridge.swift */; };
 		4D6F4D6A2B0F41FF005F39DC /* FlutterPlatformChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D682B0F41FF005F39DC /* FlutterPlatformChannel.swift */; };
 		4D6F4D722B0F420E005F39DC /* ConnectedEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D6C2B0F420E005F39DC /* ConnectedEndpoint.swift */; };
-		4D6F4D732B0F420E005F39DC /* PayloadTransferUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D6D2B0F420E005F39DC /* PayloadTransferUpdate.swift */; };
-		4D6F4D742B0F420E005F39DC /* ConnectionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D6E2B0F420E005F39DC /* ConnectionInfo.swift */; };
 		4D6F4D752B0F420E005F39DC /* DiscoveredEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D6F2B0F420E005F39DC /* DiscoveredEndpoint.swift */; };
 		4D6F4D762B0F420E005F39DC /* Payload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D702B0F420E005F39DC /* Payload.swift */; };
 		4D6F4D772B0F420E005F39DC /* ConnectionRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D712B0F420E005F39DC /* ConnectionRequest.swift */; };
 		4D6F4D7D2B0F4216005F39DC /* Advertiser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D792B0F4216005F39DC /* Advertiser.swift */; };
 		4D6F4D7E2B0F4216005F39DC /* ConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D7A2B0F4216005F39DC /* ConnectionManager.swift */; };
 		4D6F4D7F2B0F4216005F39DC /* Discoverer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D7B2B0F4216005F39DC /* Discoverer.swift */; };
-		4D6F4D802B0F4216005F39DC /* NearByConnetionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D7C2B0F4216005F39DC /* NearByConnetionHandler.swift */; };
+		4D6F4D802B0F4216005F39DC /* NearByConnectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D7C2B0F4216005F39DC /* NearByConnectionController.swift */; };
 		4D6F4D852B0F421F005F39DC /* FlutterPlatformChannelDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D822B0F421F005F39DC /* FlutterPlatformChannelDelegate.swift */; };
-		4D6F4D862B0F421F005F39DC /* FlutterNearbyMethodInvokeDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D832B0F421F005F39DC /* FlutterNearbyMethodInvokeDelegate.swift */; };
 		4D6F4D872B0F421F005F39DC /* FlutterNearbyMethodCallDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D842B0F421F005F39DC /* FlutterNearbyMethodCallDelegate.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		AC8E3DFBC7B102EF1EEBBA36 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93A594CB735059E31602E508 /* Pods_RunnerTests.framework */; };
-		CC07DA18401EED00B6BABBB7 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23ED13EA5F3FF3B1972B2469 /* Pods_Runner.framework */; };
+		E5FF27F16E5B07E8CB9A4211 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23ED13EA5F3FF3B1972B2469 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,22 +67,20 @@
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		437B5F64A9C2EF02327755FB /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+		4D5B7ECD2B1730F5005A7617 /* FlutterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlutterController.swift; sourceTree = "<group>"; };
 		4D6F4D5C2B0F3EA5005F39DC /* Enum.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Enum.swift; sourceTree = "<group>"; };
 		4D6F4D642B0F41AA005F39DC /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		4D6F4D672B0F41FF005F39DC /* FlutterPlatformChannelBridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlutterPlatformChannelBridge.swift; sourceTree = "<group>"; };
 		4D6F4D682B0F41FF005F39DC /* FlutterPlatformChannel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlutterPlatformChannel.swift; sourceTree = "<group>"; };
 		4D6F4D6C2B0F420E005F39DC /* ConnectedEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectedEndpoint.swift; sourceTree = "<group>"; };
-		4D6F4D6D2B0F420E005F39DC /* PayloadTransferUpdate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PayloadTransferUpdate.swift; sourceTree = "<group>"; };
-		4D6F4D6E2B0F420E005F39DC /* ConnectionInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionInfo.swift; sourceTree = "<group>"; };
 		4D6F4D6F2B0F420E005F39DC /* DiscoveredEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoveredEndpoint.swift; sourceTree = "<group>"; };
 		4D6F4D702B0F420E005F39DC /* Payload.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Payload.swift; sourceTree = "<group>"; };
 		4D6F4D712B0F420E005F39DC /* ConnectionRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionRequest.swift; sourceTree = "<group>"; };
 		4D6F4D792B0F4216005F39DC /* Advertiser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Advertiser.swift; sourceTree = "<group>"; };
 		4D6F4D7A2B0F4216005F39DC /* ConnectionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionManager.swift; sourceTree = "<group>"; };
 		4D6F4D7B2B0F4216005F39DC /* Discoverer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Discoverer.swift; sourceTree = "<group>"; };
-		4D6F4D7C2B0F4216005F39DC /* NearByConnetionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearByConnetionHandler.swift; sourceTree = "<group>"; };
+		4D6F4D7C2B0F4216005F39DC /* NearByConnectionController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearByConnectionController.swift; sourceTree = "<group>"; };
 		4D6F4D822B0F421F005F39DC /* FlutterPlatformChannelDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlutterPlatformChannelDelegate.swift; sourceTree = "<group>"; };
-		4D6F4D832B0F421F005F39DC /* FlutterNearbyMethodInvokeDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlutterNearbyMethodInvokeDelegate.swift; sourceTree = "<group>"; };
 		4D6F4D842B0F421F005F39DC /* FlutterNearbyMethodCallDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlutterNearbyMethodCallDelegate.swift; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -116,9 +112,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC07DA18401EED00B6BABBB7 /* Pods_Runner.framework in Frameworks */,
 				4D6F4D622B0F3F41005F39DC /* NearbyCoreAdapter in Frameworks */,
 				4D6F4D602B0F3F3C005F39DC /* NearbyConnections in Frameworks */,
+				E5FF27F16E5B07E8CB9A4211 /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -162,8 +158,6 @@
 			isa = PBXGroup;
 			children = (
 				4D6F4D6C2B0F420E005F39DC /* ConnectedEndpoint.swift */,
-				4D6F4D6D2B0F420E005F39DC /* PayloadTransferUpdate.swift */,
-				4D6F4D6E2B0F420E005F39DC /* ConnectionInfo.swift */,
 				4D6F4D6F2B0F420E005F39DC /* DiscoveredEndpoint.swift */,
 				4D6F4D702B0F420E005F39DC /* Payload.swift */,
 				4D6F4D712B0F420E005F39DC /* ConnectionRequest.swift */,
@@ -171,22 +165,22 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
-		4D6F4D782B0F4216005F39DC /* NearByConnectionHandler */ = {
+		4D6F4D782B0F4216005F39DC /* NearByConnectionController */ = {
 			isa = PBXGroup;
 			children = (
 				4D6F4D792B0F4216005F39DC /* Advertiser.swift */,
 				4D6F4D7A2B0F4216005F39DC /* ConnectionManager.swift */,
 				4D6F4D7B2B0F4216005F39DC /* Discoverer.swift */,
-				4D6F4D7C2B0F4216005F39DC /* NearByConnetionHandler.swift */,
+				4D6F4D7C2B0F4216005F39DC /* NearByConnectionController.swift */,
+				4D5B7ECD2B1730F5005A7617 /* FlutterController.swift */,
 			);
-			path = NearByConnectionHandler;
+			path = NearByConnectionController;
 			sourceTree = "<group>";
 		};
 		4D6F4D812B0F421F005F39DC /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
 				4D6F4D822B0F421F005F39DC /* FlutterPlatformChannelDelegate.swift */,
-				4D6F4D832B0F421F005F39DC /* FlutterNearbyMethodInvokeDelegate.swift */,
 				4D6F4D842B0F421F005F39DC /* FlutterNearbyMethodCallDelegate.swift */,
 			);
 			path = Protocols;
@@ -250,7 +244,7 @@
 			isa = PBXGroup;
 			children = (
 				4D6F4D812B0F421F005F39DC /* Protocols */,
-				4D6F4D782B0F4216005F39DC /* NearByConnectionHandler */,
+				4D6F4D782B0F4216005F39DC /* NearByConnectionController */,
 				4D6F4D6B2B0F420E005F39DC /* Model */,
 				4D6F4D662B0F41FF005F39DC /* FlutterPlatformChannelBridge */,
 				4D6F4D632B0F41AA005F39DC /* Constants */,
@@ -393,7 +387,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin\n";
 		};
 		3E1A159BC0A06ADC08F6DF2F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -430,7 +424,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\n";
 		};
 		E5D618F0EA8FE3A2E8703840 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -486,16 +480,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4D6F4D732B0F420E005F39DC /* PayloadTransferUpdate.swift in Sources */,
-				4D6F4D862B0F421F005F39DC /* FlutterNearbyMethodInvokeDelegate.swift in Sources */,
+				4D5B7ECE2B1730F5005A7617 /* FlutterController.swift in Sources */,
 				4D6F4D7D2B0F4216005F39DC /* Advertiser.swift in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
-				4D6F4D802B0F4216005F39DC /* NearByConnetionHandler.swift in Sources */,
+				4D6F4D802B0F4216005F39DC /* NearByConnectionController.swift in Sources */,
 				4D6F4D7E2B0F4216005F39DC /* ConnectionManager.swift in Sources */,
 				4D6F4D872B0F421F005F39DC /* FlutterNearbyMethodCallDelegate.swift in Sources */,
 				4D6F4D752B0F420E005F39DC /* DiscoveredEndpoint.swift in Sources */,
 				4D6F4D6A2B0F41FF005F39DC /* FlutterPlatformChannel.swift in Sources */,
-				4D6F4D742B0F420E005F39DC /* ConnectionInfo.swift in Sources */,
 				4D6F4D692B0F41FF005F39DC /* FlutterPlatformChannelBridge.swift in Sources */,
 				4D6F4D722B0F420E005F39DC /* ConnectedEndpoint.swift in Sources */,
 				4D6F4D762B0F420E005F39DC /* Payload.swift in Sources */,

@@ -9,8 +9,9 @@ import Foundation
 import NearbyConnections
 
 
-extension NearByConnectionHandler : AdvertiserDelegate {
+extension NearByConnectionController : AdvertiserDelegate {
     func advertiser(_ advertiser: Advertiser, didReceiveConnectionRequestFrom endpointID: EndpointID, with context: Data, connectionRequestHandler: @escaping (Bool) -> Void) {
+
         guard let endpointName = String(data: context, encoding: .utf8) else {
             return
         }
@@ -21,8 +22,7 @@ extension NearByConnectionHandler : AdvertiserDelegate {
             endpointName: endpointName
         )
         endpoints.insert(endpoint, at: 0)
-        let endpointInfo: [String: Any?] = ["id": UUID().uuidString,"endpointID": endpointID,"endpointName":endpointName]
-        
         connectionRequestHandler(true)
     }
+    
 }
