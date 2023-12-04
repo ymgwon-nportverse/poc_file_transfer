@@ -4,7 +4,7 @@ import NearbyConnections
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
-
+    
     override init() {
         super.init()
     }
@@ -13,14 +13,14 @@ import NearbyConnections
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
+        let bridge :FlutterBridge = FlutterBridge(controller: controller)
+       
+        bridge.connectBridge()
         
-        let flutterPlatformChannel: FlutterPlatformChannel = FlutterPlatformChannel(name: Constants.methodChannelName, flutterWindow: window)
         
-        flutterPlatformChannel.callHandler()
         GeneratedPluginRegistrant.register(with: self)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
     
 }
-
-

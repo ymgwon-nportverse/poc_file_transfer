@@ -24,7 +24,7 @@ extension NearByConnectionController: DiscovererDelegate {
         if(endpoints.isEmpty){
             // 분기처리 필요 found / lost (중복 처리도 적용)
         }else{
-            onEndpointFound(endpointId: endpointID, endpointName: endpointName, serviceId: Constants.serviceId)
+            nearbyConnectionsInvokeEvent.onEndpointFound(endpointId: endpointID, endpointName: endpointName, serviceId: Constants.serviceId)
         }
        
     }
@@ -34,7 +34,7 @@ extension NearByConnectionController: DiscovererDelegate {
             return
         }
         
-        onEndpointLost(endpointId: endpointID)
+        nearbyConnectionsInvokeEvent.onEndpointLost(endpointId: endpointID)
         endpoints.remove(at: index)
     }
 }

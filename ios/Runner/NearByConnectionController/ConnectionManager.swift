@@ -44,8 +44,8 @@ extension NearByConnectionController: ConnectionManagerDelegate {
         }
         
         connections[index].payloads.insert(payload, at: 0)
-        onPayloadReceived(endpointId: endpointID, payloadType: payload.type.toString, bytes: data, payloadId: Int(payloadID), filePath: "")
-        onPayloadTransferUpdate(endpointId: endpointID, payloadId: payloadID, payloadStatus: payload.payloadStatus.toString, bytesTransferred: data.count, totalBytes: data.count)
+        nearbyConnectionsInvokeEvent.onPayloadReceived(endpointId: endpointID, payloadType: payload.type.toString, bytes: data, payloadId: Int(payloadID), filePath: "")
+        nearbyConnectionsInvokeEvent.onPayloadTransferUpdate(endpointId: endpointID, payloadId: payloadID, payloadStatus: payload.payloadStatus.toString, bytesTransferred: data.count, totalBytes: data.count)
     }
     
     func connectionManager(_ connectionManager: ConnectionManager, didReceive stream: InputStream, withID payloadID: PayloadID, from endpointID: EndpointID, cancellationToken token: CancellationToken) {
@@ -84,8 +84,7 @@ extension NearByConnectionController: ConnectionManagerDelegate {
               let payloadIndex = connections[connectionIndex].payloads.firstIndex(where: { $0.id == payloadID }) else {
             return
         }
-        //todo
-        print("\(update) update ")
+        
         switch update {
         case .success:
             connections[connectionIndex].payloads[payloadIndex].payloadStatus = .success
@@ -102,7 +101,7 @@ extension NearByConnectionController: ConnectionManagerDelegate {
     func connectionManager(_ connectionManager: ConnectionManager, didChangeTo state: ConnectionState, for endpointID: EndpointID) {
         switch (state) {
         case .connecting:
-            onConnectionInitiated(endpointId: endpointID, endpointName: endpointName ,authenticationDigits: "", isIncomingConnection: true)
+            nearbyConnectionsInvokeEvent.onConnectionInitiated(endpointId: endpointID, endpointName: endpointName ,authenticationDigits: "", isIncomingConnection: true)
             break
         case .connected:
             guard let index = requests.firstIndex(where: { $0.endpointID == endpointID }) else {
@@ -116,22 +115,21 @@ extension NearByConnectionController: ConnectionManagerDelegate {
             )
             
             connections.insert(connection, at: 0)
-            onConnectionResult(endpointId: endpointID, status: ConnectionStatus.connected)
+            nearbyConnectionsInvokeEvent.onConnectionResult(endpointId: endpointID, status: ConnectionStatus.connected)
         case .disconnected:
             
             guard let index = connections.firstIndex(where: { $0.endpointID == endpointID }) else {
                 return
             }
-            connections.remove(at: index)
-            onDisconnected(endpointId: endpointID)
-            // connections.removeAll()
-            
+            //           connections.remove(at: index)
+            connections.removeAll()
+            nearbyConnectionsInvokeEvent.onDisconnected(endpointId: endpointID)
         case .rejected:
             
             guard let index = requests.firstIndex(where: { $0.endpointID == endpointID }) else {
                 return
             }
-            //리젝트
+            
             requests.remove(at: index)
         }
     }

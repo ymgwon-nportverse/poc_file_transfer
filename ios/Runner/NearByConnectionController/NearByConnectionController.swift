@@ -24,6 +24,8 @@ class NearByConnectionController{
     var advertiser: Advertiser
     var discoverer: Discoverer
     
+    var nearbyConnectionsInvokeEvent: NearbyConnectionsInvokeEvent = NearbyConnectionsInvokeEvent()
+    
     private init() {
         connectionManager = ConnectionManager(serviceID: Constants.serviceId, strategy:.pointToPoint)
         
@@ -81,14 +83,12 @@ class NearByConnectionController{
             }
             connections[index].payloads.insert(payload, at: 0)
         }
-        
-        
-        //        for endpointID in endpointIDs {
-        //            if(connections.isEmpty){
-        //                var test =  connections.first?.payloads
-        //                test?.append(payload)
-        //            }
-        //        }
+           for endpointID in endpointIDs {
+                    if(connections.isEmpty){
+                        var payloads =  connections.first?.payloads
+                        payloads?.append(payload)
+                    }
+                }
         
     }
     
