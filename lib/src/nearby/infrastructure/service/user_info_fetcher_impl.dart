@@ -12,7 +12,7 @@ import 'package:poc/src/nearby/application/service/user_info_fetcher.dart';
 /// BLoC 클래스에 InMemory Caching 을 적용할까, 여기 적용할까 하다 여기 적용함.
 ///
 /// 즉, 언제든 위치를 바꿔도 무관하다는 의미.
-class UserInfoFetcherImpl implements UserInfoFetcher {
+final class UserInfoFetcherImpl implements UserInfoFetcher {
   UserInfoFetcherImpl(this._infoFetcher) {
     info;
   }

@@ -4,10 +4,12 @@ import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poc/src/nearby/application/bloc/sender/nearby_sender_event.dart';
 import 'package:poc/src/nearby/application/bloc/sender/nearby_sender_state.dart';
+import 'package:poc/src/nearby/application/service/asset_facade_service.dart';
 import 'package:poc/src/nearby/application/service/nearby.dart';
 import 'package:poc/src/nearby/application/service/user_info_fetcher.dart';
 import 'package:poc/src/nearby/application/service/exceptions.dart';
 import 'package:poc/src/nearby/di.dart';
+import 'package:poc/src/nearby/domain/entity/asset.dart';
 
 // REF: StateNotifier -> Notifier 로 migration 하면서
 //      `WidgetRef`를 이용한 의존성 주입을 사용할 수 없게 되었음.
@@ -17,6 +19,7 @@ import 'package:poc/src/nearby/di.dart';
 class NearbySenderBloc extends AutoDisposeNotifier<NearbySenderState> {
   late final Nearby _nearby;
   late final UserInfoFetcher _infoFetcher;
+  late final AssetFacadeService _assetService;
 
   /// 데이터 보낼 endpoint id
   ///
@@ -28,10 +31,14 @@ class NearbySenderBloc extends AutoDisposeNotifier<NearbySenderState> {
   /// 이것이 잘 구현되어 있는지 확인 필요
   String? _targetEndpointId;
 
+  /// 데이터가 문제없이 전송 되었을 때, 삭제하기 위해 state를 가지고 있음
+  Asset? _asset;
+
   @override
   NearbySenderState build() {
     _nearby = ref.watch(nearbyProvider);
     _infoFetcher = ref.watch(infoFetcherProvider);
+    _assetService = ref.watch(assetFacadeServiceProvider);
     _loadUserName();
     ref.onDispose(() {
       stopAll();
@@ -96,7 +103,6 @@ class NearbySenderBloc extends AutoDisposeNotifier<NearbySenderState> {
     _nearby.requestConnection(
       concatenatedName,
       endpointId,
-      onBandwidthChanged: _onBandwidthChanged,
       onConnectionInitiated: _onConnectionInitiated,
       onConnectionResult: _onConnectionResult,
       onDisconnected: _onDisconnected,
@@ -105,16 +111,17 @@ class NearbySenderBloc extends AutoDisposeNotifier<NearbySenderState> {
   }
 
   // TODO: 현재는 bytes 보내는 것만 가정하고 있으므로, 수정후 이 TODO 지우기
-  Future<void> send([Uint8List? bytes, String? filePath]) async {
+  Future<void> send(Asset asset) async {
     if (_targetEndpointId == null) {
       state = const NearbySenderState.failed('endpoint is null!');
       return;
     }
 
+    _asset = asset;
+
     _nearby.sendPayload(
       Payload.forSend(
-        bytes: bytes,
-        filePath: filePath,
+        bytes: Uint8List.fromList(asset.name.codeUnits),
       ),
       _targetEndpointId!,
     );
@@ -168,7 +175,7 @@ class NearbySenderBloc extends AutoDisposeNotifier<NearbySenderState> {
     String endpointId,
   ) {
     _targetEndpointId = null;
-    _nearby.disconnectFromEndpoint(endpointId);
+    _asset = null;
     state = NearbySenderState.none(_userName!);
   }
 
@@ -210,6 +217,7 @@ class NearbySenderBloc extends AutoDisposeNotifier<NearbySenderState> {
     final result = json.decode(String.fromCharCodes(payload.bytes!));
     final isSuccess = result['isSuccess'] ?? false;
     if (isSuccess) {
+      _assetService.saveAssetBySender(_userName!, _asset!);
       state = const NearbySenderState.success();
     } else {
       state = const NearbySenderState.failed('failed data');
@@ -234,10 +242,4 @@ class NearbySenderBloc extends AutoDisposeNotifier<NearbySenderState> {
         state = const NearbySenderState.failed('canceled');
     }
   }
-
-  /// API에는 존재하나, 현재는 크게 필요성을 못느껴서 없애도 될거 같다는 생각이 듬
-  void _onBandwidthChanged(
-    String endpointId,
-    BandwidthQuality quality,
-  ) {}
 }

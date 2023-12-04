@@ -86,7 +86,7 @@ final class NearbyImpl implements Nearby {
         },
       );
     } on PlatformException {
-      throw AlreadyInUseException();
+      throw const AlreadyInUseException();
     }
   }
 
@@ -95,7 +95,6 @@ final class NearbyImpl implements Nearby {
     String userName,
     Strategy strategy, {
     String serviceId = 'com.nportverse.poc',
-    required OnBandwidthChanged onBandwidthChanged,
     required OnConnectionInitiated onConnectionInitiated,
     required OnConnectionResult onConnectionResult,
     required OnDisconnected onDisconnected,
@@ -113,7 +112,7 @@ final class NearbyImpl implements Nearby {
         },
       );
     } on PlatformException {
-      throw AlreadyInUseException();
+      throw const AlreadyInUseException();
     }
   }
 
@@ -161,7 +160,6 @@ final class NearbyImpl implements Nearby {
   Future<void> requestConnection(
     String userName,
     String endpointId, {
-    required OnBandwidthChanged onBandwidthChanged,
     required OnConnectionInitiated onConnectionInitiated,
     required OnConnectionResult onConnectionResult,
     required OnDisconnected onDisconnected,

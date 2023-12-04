@@ -34,7 +34,7 @@ class NearbySendConfirmBottomSheet extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              ref.watch(uiSendPropertyProvider).selectedData ??
+              ref.watch(uiSendPropertyProvider).selectedAsset?.name ??
                   'something went wrong',
               style: context.textTheme.bodyLarge,
               overflow: TextOverflow.ellipsis,
@@ -71,7 +71,10 @@ class NearbySendConfirmBottomSheet extends ConsumerWidget {
                                   .watch(uiSendPropertyProvider)
                                   .selectedDevice!
                                   .name,
-                              ref.watch(uiSendPropertyProvider).selectedData!,
+                              ref
+                                  .watch(uiSendPropertyProvider)
+                                  .selectedAsset!
+                                  .name,
                             ),
                           );
                     },
