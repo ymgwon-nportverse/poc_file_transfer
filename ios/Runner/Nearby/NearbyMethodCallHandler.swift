@@ -10,6 +10,8 @@ class NearbyMethodCallHandler: MethodCallHandler {
     private let serviceId: String = "com.nportverse.poc"
     private var strategy: Strategy = .pointToPoint
 
+    private var connectedEndpoints: [String] = []
+
     init(viewController: FlutterViewController) {
         methodChannel = FlutterMethodChannel(
             name: "nearby_connections", binaryMessenger: viewController.binaryMessenger
@@ -108,6 +110,21 @@ class NearbyMethodCallHandler: MethodCallHandler {
             case "stopAllEndpoints":
                 print("stopAllEndpoints")
 
+                for endpointId in self.connectedEndpoints {
+                    self.connectionManager.disconnect(from: endpointId) { (error: Error?) in
+                        if error != nil {
+                            result(
+                                FlutterError(
+                                    code: "DISCONNECT_FROM_ENDPOINT_FAILURE",
+                                    message: error?.localizedDescription,
+                                    details: nil
+                                )
+                            )
+                        }
+                    }
+                }
+                result(nil)
+
             case "disconnectFromEndpoint":
                 print("disconnectFromEndpoint")
                 guard let args = call.arguments as? [String: Any] else {
@@ -129,6 +146,8 @@ class NearbyMethodCallHandler: MethodCallHandler {
                             )
                         )
                     }
+
+                    self.connectedEndpoints.removeAll { $0 == endpointId }
                     result(nil)
                 }
 
@@ -171,6 +190,9 @@ class NearbyMethodCallHandler: MethodCallHandler {
 
                 // TODO: 다음 코드는 internal protocol 이라 사용할 수 없으니 방법 찾기
                 // self.advertiser.connection?.acceptedConnection(toEndpoint: "")
+
+            case "rejectConnection":
+                print("rejectConnection")
 
             default:
                 result(FlutterMethodNotImplemented)
