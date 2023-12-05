@@ -30,8 +30,8 @@
 		4D6F4D802B0F4216005F39DC /* NearByConnectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D7C2B0F4216005F39DC /* NearByConnectionController.swift */; };
 		4D6F4D872B0F421F005F39DC /* NearbyConnectionsChannelDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6F4D842B0F421F005F39DC /* NearbyConnectionsChannelDelegate.swift */; };
 		4D75F96B2B19C46400D816B1 /* FlutterChannelConnectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D75F96A2B19C46400D816B1 /* FlutterChannelConnectorDelegate.swift */; };
-		4D75F9732B19C55300D816B1 /* FlutterBridgeDictionaryDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D75F9722B19C55300D816B1 /* FlutterBridgeDictionaryDelegate.swift */; };
-		4D75F9792B19DDCA00D816B1 /* FlutterBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D75F9782B19DDCA00D816B1 /* FlutterBridge.swift */; };
+		4D75F9732B19C55300D816B1 /* FlutterDictionaryDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D75F9722B19C55300D816B1 /* FlutterDictionaryDelegate.swift */; };
+		4D75F9792B19DDCA00D816B1 /* FlutterDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D75F9782B19DDCA00D816B1 /* FlutterDictionary.swift */; };
 		4DC264032B1EB1E700912DBC /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC264022B1EB1E700912DBC /* Utils.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
@@ -94,8 +94,8 @@
 		4D6F4D7C2B0F4216005F39DC /* NearByConnectionController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearByConnectionController.swift; sourceTree = "<group>"; };
 		4D6F4D842B0F421F005F39DC /* NearbyConnectionsChannelDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearbyConnectionsChannelDelegate.swift; sourceTree = "<group>"; };
 		4D75F96A2B19C46400D816B1 /* FlutterChannelConnectorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlutterChannelConnectorDelegate.swift; sourceTree = "<group>"; };
-		4D75F9722B19C55300D816B1 /* FlutterBridgeDictionaryDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlutterBridgeDictionaryDelegate.swift; sourceTree = "<group>"; };
-		4D75F9782B19DDCA00D816B1 /* FlutterBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlutterBridge.swift; sourceTree = "<group>"; };
+		4D75F9722B19C55300D816B1 /* FlutterDictionaryDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlutterDictionaryDelegate.swift; sourceTree = "<group>"; };
+		4D75F9782B19DDCA00D816B1 /* FlutterDictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlutterDictionary.swift; sourceTree = "<group>"; };
 		4DC264012B1DD3A000912DBC /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4DC264022B1EB1E700912DBC /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		4DE9F559EFC9795B3A5E446D /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -150,13 +150,13 @@
 			path = RunnerTests;
 			sourceTree = "<group>";
 		};
-		4D6076472B1D9FFA007BF7FD /* FlutterBridge */ = {
+		4D6076472B1D9FFA007BF7FD /* FlutterDictionary */ = {
 			isa = PBXGroup;
 			children = (
-				4D75F9782B19DDCA00D816B1 /* FlutterBridge.swift */,
-				4D75F9722B19C55300D816B1 /* FlutterBridgeDictionaryDelegate.swift */,
+				4D75F9782B19DDCA00D816B1 /* FlutterDictionary.swift */,
+				4D75F9722B19C55300D816B1 /* FlutterDictionaryDelegate.swift */,
 			);
-			path = FlutterBridge;
+			path = FlutterDictionary;
 			sourceTree = "<group>";
 		};
 		4D6076482B1DA015007BF7FD /* FlutterChannels */ = {
@@ -226,6 +226,14 @@
 			path = NearByConnectionController;
 			sourceTree = "<group>";
 		};
+		4DC264042B1F13F300912DBC /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				4DC264022B1EB1E700912DBC /* Utils.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 		58297EAE55D93953029B100D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -271,8 +279,6 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
-				4DC264022B1EB1E700912DBC /* Utils.swift */,
-				4DC264012B1DD3A000912DBC /* README.md */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
 				E2EABDC89B1AE317ADF3D7D9 /* Pods */,
@@ -293,14 +299,15 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
-				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
+				4D6F4D632B0F41AA005F39DC /* Constants */,
+				4D6F4D5B2B0F3EA5005F39DC /* Enums */,
+				4DC264042B1F13F300912DBC /* Utils */,
 				4D60764A2B1DAD2B007BF7FD /* FlutterChannelConnector */,
 				4D6F4D782B0F4216005F39DC /* NearByConnectionController */,
 				4D6076482B1DA015007BF7FD /* FlutterChannels */,
-				4D6076472B1D9FFA007BF7FD /* FlutterBridge */,
+				4D6076472B1D9FFA007BF7FD /* FlutterDictionary */,
 				4D6F4D6B2B0F420E005F39DC /* Model */,
-				4D6F4D632B0F41AA005F39DC /* Constants */,
-				4D6F4D5B2B0F3EA5005F39DC /* Enums */,
+				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				58297EAE55D93953029B100D /* Frameworks */,
 				6DFACE58EECABCCEF49A7D7A /* Pods */,
 				331C8082294A63A400263BE5 /* RunnerTests */,
@@ -312,6 +319,7 @@
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				4DC264012B1DD3A000912DBC /* README.md */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -550,7 +558,7 @@
 			files = (
 				4D75F96B2B19C46400D816B1 /* FlutterChannelConnectorDelegate.swift in Sources */,
 				4D60764C2B1DB3E3007BF7FD /* FlutterChannelDelegate.swift in Sources */,
-				4D75F9732B19C55300D816B1 /* FlutterBridgeDictionaryDelegate.swift in Sources */,
+				4D75F9732B19C55300D816B1 /* FlutterDictionaryDelegate.swift in Sources */,
 				4D60764E2B1DC847007BF7FD /* FlutterChannelMethodCallDelegate.swift in Sources */,
 				4D6F4D7D2B0F4216005F39DC /* Advertiser.swift in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
@@ -558,7 +566,7 @@
 				4D6F4D7E2B0F4216005F39DC /* ConnectionManager.swift in Sources */,
 				4D6F4D872B0F421F005F39DC /* NearbyConnectionsChannelDelegate.swift in Sources */,
 				4D6F4D752B0F420E005F39DC /* DiscoveredEndpoint.swift in Sources */,
-				4D75F9792B19DDCA00D816B1 /* FlutterBridge.swift in Sources */,
+				4D75F9792B19DDCA00D816B1 /* FlutterDictionary.swift in Sources */,
 				4D6F4D6A2B0F41FF005F39DC /* FlutterChannelConnector.swift in Sources */,
 				4D6076502B1DC8B4007BF7FD /* FlutterChannelInovokeDelegate.swift in Sources */,
 				4D6F4D692B0F41FF005F39DC /* NearbyConnectionsChannel.swift in Sources */,

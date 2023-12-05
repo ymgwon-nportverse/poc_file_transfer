@@ -9,6 +9,6 @@ import Foundation
 import Flutter
 import UIKit
 
-protocol FlutterBridgeDictionaryDelegate{
+protocol FlutterDictionaryDelegate{
     var dict : Dictionary<String,FlutterChannelDelegate> { get }
 }

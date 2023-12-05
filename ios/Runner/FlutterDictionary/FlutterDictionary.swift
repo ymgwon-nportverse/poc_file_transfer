@@ -1,5 +1,5 @@
 //
-//  FlutterBridge.swift
+//  FlutterDictionary.swift
 //  Runner
 //
 //  Created by ahhyun lee on 12/1/23.
@@ -10,7 +10,7 @@ import Flutter
 import UIKit
 import OSLog
 
-class FlutterBridge:FlutterBridgeDictionaryDelegate{
+class FlutterDictionary:FlutterDictionaryDelegate{
     var dict: Dictionary<String, FlutterChannelDelegate> = [Constants.nearbyConnectionsMethodChannel:NearbyConnectionsChannel()]
     
     
@@ -33,14 +33,14 @@ class FlutterBridge:FlutterBridgeDictionaryDelegate{
     }
     
     
-    func connectBridge(){
+    func connectDictionary(){
         do{
         let channels  = registerChannel()
             try channels.forEach{
                 $0.setMethodCallHandler()
             }
         }catch{
-            os_log(.error, log: .default, "[FlutterBridge]__\(error)")
+            os_log(.error, log: .default, "[FlutterDictionary]__\(error)")
         }
     }
 }

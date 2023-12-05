@@ -17,9 +17,9 @@ import OSLog
         
         do {
             let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
-            let bridge :FlutterBridge = FlutterBridge(controller: controller)
+            let dictionary :FlutterDictionary = FlutterDictionary(controller: controller)
            
-          try  bridge.connectBridge()
+            try  dictionary.connectDictionary()
             
         }catch{
             os_log(.error, log: .default, "[AppDelegate]__\(error)")

@@ -23,7 +23,7 @@ protocol NearbyConnectionsMethodCallEventDelegate{
     
     func acceptConnection(endpointId:String,result:@escaping FlutterResult)
     
-    func requestConnection(endpointId:String,result:@escaping FlutterResult)
+    func requestConnection(endpointId:String,userName:String,result:@escaping FlutterResult)
     
     func rejectConnection(endpointId:String,result:@escaping FlutterResult)
     

@@ -59,8 +59,8 @@ class NearByConnectionController{
     }
     
     
-    func requestConnection(to endpointID: EndpointID) {
-        discoverer.requestConnection(to: endpointID, using:endpointName.data(using: .utf8)!)
+    func requestConnection(to endpointID: EndpointID ,userName:String) {
+        discoverer.requestConnection(to: endpointID, using: userName.data(using: .utf8)!)
         os_log("[NearByConnectionController]__requestConnection")
     }
     

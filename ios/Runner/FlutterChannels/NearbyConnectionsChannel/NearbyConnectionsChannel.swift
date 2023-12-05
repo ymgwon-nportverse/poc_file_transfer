@@ -38,7 +38,10 @@ class NearbyConnectionsChannel : FlutterChannelDelegate {
             case Constants.disconnectFromEndpoint: return disconnectFromEndpoint(endpointId: endpointId!, result: result)
                 
             case Constants.acceptConnection : return acceptConnection(endpointId: endpointId!, result: result)
-            case Constants.requestConnection: return requestConnection(endpointId: endpointId!, result: result)
+            case Constants.requestConnection:
+              let userName = args?["userName"] as? String
+              
+              return requestConnection(endpointId: endpointId!, userName: userName!, result: result)
             case Constants.rejectConnection: return rejectConnection(endpointId: endpointId!, result: result)
             case Constants.sendPayload :
                 print("🌽 sendPayload => \(args)🌽 ");
@@ -90,8 +93,10 @@ extension NearbyConnectionsChannel: NearbyConnectionsMethodCallEventDelegate{
         result(true)
     }
     
-    func requestConnection(endpointId: String, result: @escaping FlutterResult) {
-        nearByConnectionController.requestConnection(to: endpointId)
+    func requestConnection(endpointId:String,userName:String,result: @escaping FlutterResult) {
+        nearByConnectionController.requestConnection(to: endpointId,userName: userName)
+            //todo  'userName': userName,
+        // userName 추가
         result(true)
     }
     
