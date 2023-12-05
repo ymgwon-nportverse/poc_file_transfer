@@ -1,15 +1,15 @@
-import 'dart:io';
 import 'dart:typed_data';
 
+/// TODO: 상속 타입을 알기 위해 Asset Factory 같은 것이 하나 더 필요할 것으로 보임
 abstract base class Asset {
   const Asset();
 
   String get id;
-  String get type;
-  int get byteSize;
+  String get name;
+  Uint8List get bytes;
 
   @override
-  bool operator ==(covariant TextAsset other) {
+  bool operator ==(covariant Asset other) {
     if (identical(this, other)) return true;
 
     return other.id == id;
@@ -20,41 +20,20 @@ abstract base class Asset {
 }
 
 final class TextAsset extends Asset {
-  const TextAsset(this._text);
+  const TextAsset(this._id, this._text);
 
+  factory TextAsset.fromText(String text) => TextAsset((-1).toString(), text);
+
+  final String _id;
   final String _text;
 
   @override
-  String get id => throw UnimplementedError();
+  String get id => _id;
+
+  /// TextAsset은 [_text] 값으로 사용
+  @override
+  String get name => _text;
 
   @override
-  String get type => 'byte';
-
-  @override
-  int get byteSize => _text.codeUnits.length;
-}
-
-final class FileAsset extends Asset {
-  FileAsset._({required this.bytes, required this.path});
-
-  factory FileAsset.fromPath(String path) {
-    try {
-      final bytes = File(path).readAsBytesSync();
-      return FileAsset._(bytes: bytes, path: path);
-    } on FileSystemException {
-      rethrow;
-    }
-  }
-
-  late Uint8List bytes;
-  final String path;
-
-  @override
-  String get id => throw UnimplementedError();
-
-  @override
-  String get type => 'file';
-
-  @override
-  int get byteSize => bytes.length;
+  Uint8List get bytes => Uint8List.fromList(_text.codeUnits);
 }

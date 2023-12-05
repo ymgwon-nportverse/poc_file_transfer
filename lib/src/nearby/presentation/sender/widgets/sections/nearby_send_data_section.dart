@@ -1,64 +1,39 @@
+import 'package:flash/flash_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poc/src/core/presentation/extensions/extensions.dart';
-import 'package:poc/src/nearby/di.dart';
+import 'package:poc/src/core/presentation/widgets/common_toast.dart';
 import 'package:poc/src/nearby/presentation/sender/ui_state/ui_send_property.dart';
+import 'package:poc/src/nearby/presentation/view_models/asset_view_model.dart';
+import 'package:poc/src/nearby/presentation/view_models/asset_view_model_provider.dart';
 
-class NearbySendDataSection extends ConsumerStatefulWidget {
+class NearbySendDataSection extends ConsumerWidget {
   const NearbySendDataSection({super.key});
 
   @override
-  ConsumerState<NearbySendDataSection> createState() =>
-      _NearbySendDataSectionState();
-}
-
-class _NearbySendDataSectionState extends ConsumerState<NearbySendDataSection> {
-  int _toggleIndex = 0;
-  final _sections = const [
-    NearbyTextAssetsList(),
-    NearbyFileAssetsList(),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              '보내는 데이터',
-              style: context.textTheme.headlineSmall,
-            ),
-            const Spacer(),
-            SizedBox(
-              height: 40,
-              child: SendTypeToggleWidget(
-                onToggle: _onToggle,
-                initialIndex: _toggleIndex,
-              ),
-            ),
-          ],
+        Text(
+          '보내는 데이터',
+          style: context.textTheme.headlineSmall,
         ),
-        const Divider(),
-        Expanded(
-          child: _sections[_toggleIndex],
+        const Divider(height: 8),
+        const Expanded(
+          child: NearbyTextAssetsList(),
         ),
-        const Divider(
-          height: 2,
-        ),
+        const Divider(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             TextButton(
-              onPressed: () {
-                context.navigator.pushNamed('/nearby/send/remote');
-              },
+              onPressed: () =>
+                  ref.read(assetViewModelProvider.notifier).getRemoteAssets(),
               child: const Text('서버 데이터 업데이트'),
             ),
             TextButton(
-              onPressed: ref.watch(uiSendPropertyProvider).selectedData != null
+              onPressed: ref.watch(uiSendPropertyProvider).selectedAsset != null
                   ? () => ref.read(uiSendPropertyProvider).setData(null)
                   : null,
               child: const Text('선택 취소'),
@@ -68,35 +43,103 @@ class _NearbySendDataSectionState extends ConsumerState<NearbySendDataSection> {
       ],
     );
   }
-
-  void _onToggle(int index) {
-    setState(() {
-      _toggleIndex = index;
-    });
-  }
 }
 
-class NearbyTextAssetsList extends ConsumerWidget {
+class NearbyTextAssetsList extends ConsumerStatefulWidget {
   const NearbyTextAssetsList({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return FutureBuilder<List<String>>(
-      future: Future.value(ref.read(myAssetsRepositoryProvider).getAssets()),
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.done:
-            return ListView.separated(
-              separatorBuilder: (_, __) => const SizedBox(height: 4),
-              itemBuilder: (context, index) {
-                return _AssetItem(name: snapshot.data![index]);
-              },
-              itemCount: snapshot.data!.length,
+  ConsumerState<NearbyTextAssetsList> createState() =>
+      _NearbyTextAssetsListState();
+}
+
+class _NearbyTextAssetsListState extends ConsumerState<NearbyTextAssetsList> {
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _showToastWhenAssetsAreUpdated();
+
+    final state = ref.watch(assetViewModelProvider);
+
+    return state.when(
+      data: (assets) {
+        if (assets.isNotEmpty) {
+          return ListView.separated(
+            controller: _scrollController,
+            separatorBuilder: (_, __) => const SizedBox(height: 4),
+            itemBuilder: (context, index) {
+              return _AssetItem(
+                asset: assets[index],
+              );
+            },
+            itemCount: assets.length,
+          );
+        } else {
+          return const Center(
+            child: Text('보낼 데이터가 없습니다.'),
+          );
+        }
+      },
+      error: (e, stackTrace) {
+        return const Center(
+          child: Text(
+            '데이터를 불러오는 중 에러가 발생하였습니다.',
+          ),
+        );
+      },
+      loading: () {
+        return const Center(
+          child: CircularProgressIndicator.adaptive(),
+        );
+      },
+    );
+  }
+
+  void _showToastWhenAssetsAreUpdated() {
+    ref.listen(
+      assetViewModelProvider,
+      (previous, current) {
+        if (previous == null || current.isLoading || previous.value == null) {
+          return;
+        }
+
+        if (previous.value?.length == current.value?.length) {
+          context.showFlash(
+            duration: const Duration(seconds: 2),
+            builder: (context, controller) {
+              return CommonToast(
+                  controller: controller, message: '이미 최신 버전입니다.');
+            },
+          );
+        } else {
+          context.showFlash(
+            duration: const Duration(seconds: 2),
+            builder: (context, controller) {
+              return CommonToast(
+                  controller: controller, message: '서버로부터 아이템을 업데이트 하였습니다.');
+            },
+          );
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.ease,
             );
-          default:
-            return const Center(
-              child: CircularProgressIndicator.adaptive(),
-            );
+          });
         }
       },
     );
@@ -104,16 +147,16 @@ class NearbyTextAssetsList extends ConsumerWidget {
 }
 
 class _AssetItem extends ConsumerWidget {
-  const _AssetItem({required this.name});
+  const _AssetItem({required this.asset});
 
-  final String name;
+  final AssetViewModel asset;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isSelected =
-        ref.watch(uiSendPropertyProvider).selectedData == name;
+        ref.watch(uiSendPropertyProvider).selectedAsset == asset;
     return GestureDetector(
-      onTap: () => ref.read(uiSendPropertyProvider).setData(name),
+      onTap: () => ref.read(uiSendPropertyProvider).setData(asset),
       child: Container(
         height: 60,
         padding: const EdgeInsets.symmetric(
@@ -125,47 +168,41 @@ class _AssetItem extends ConsumerWidget {
             color: isSelected
                 ? context.theme.colorScheme.primary
                 : context.theme.colorScheme.outline,
-            width: isSelected ? 3 : 1,
+            width: isSelected ? 4 : 1,
           ),
           borderRadius: BorderRadius.circular(6),
-          color: context.theme.colorScheme.surfaceVariant.withOpacity(.4),
+          color: asset.isRemote
+              ? context.theme.colorScheme.surfaceTint.withOpacity(.4)
+              : context.theme.colorScheme.surfaceVariant.withOpacity(.4),
         ),
         alignment: Alignment.centerLeft,
-        child: Text(
-          name,
-          style: context.textTheme.labelLarge?.copyWith(
-            fontSize: 20,
-            color: context.theme.colorScheme.onSurfaceVariant,
-          ),
+        child: Row(
+          children: [
+            Text(
+              asset.name,
+              style: context.textTheme.labelLarge?.copyWith(
+                fontSize: 20,
+                color: context.theme.colorScheme.onSurfaceVariant,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+            const Spacer(),
+            const Text('from'),
+            const SizedBox(width: 4),
+            Icon(
+              asset.isRemote ? Icons.dns : Icons.phone_android,
+            )
+          ],
         ),
       ),
     );
   }
 }
 
-class NearbyFileAssetsList extends StatelessWidget {
-  const NearbyFileAssetsList({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Spacer(),
-        ElevatedButton(
-          onPressed: _onTap,
-          child: const Text('파일 불러오기'),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _onTap() async {}
-}
-
 class SendTypeToggleWidget extends StatefulWidget {
   const SendTypeToggleWidget(
       {super.key, required this.onToggle, this.initialIndex = 0})
-      : assert(initialIndex <= 1);
+      : assert(0 <= initialIndex || initialIndex <= 1);
 
   final int initialIndex;
   final ValueChanged<int> onToggle;

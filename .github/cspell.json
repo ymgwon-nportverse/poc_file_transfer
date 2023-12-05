@@ -24,6 +24,13 @@
     "pubspec",
     "prunner",
     "ci",
-    "nportverse"
+    "nportverse",
+    "daos",
+    "encrypter",
+    "sublist",
+    "dtos",
+    "dotenv",
+    "envrc",
+    "cqrs"
   ]
 }
