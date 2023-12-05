@@ -46,8 +46,11 @@ extension NearByConnectionController: ConnectionManagerDelegate {
         }
         
         connections[index].payloads.insert(payload, at: 0)
-        nearbyConnectionsInvokeEvent.onPayloadReceived(endpointId: endpointID, payloadType: payload.type.toString, bytes: data, payloadId: Int(payloadID), filePath: "")
+        
+        nearbyConnectionsInvokeEvent.onPayloadReceived(endpointId: endpointID, payloadType: payload.type.toString, bytes: data, payloadId: Int(payloadID), filePath: nil)
+        
         nearbyConnectionsInvokeEvent.onPayloadTransferUpdate(endpointId: endpointID, payloadId: payloadID, payloadStatus: payload.payloadStatus.toString, bytesTransferred: data.count, totalBytes: data.count)
+        
         
         os_log("[connectionManager]__[onPayloadReceived and onPayloadTransferUpdate] A simple byte payload has been received. This will always include the full data.")
     }

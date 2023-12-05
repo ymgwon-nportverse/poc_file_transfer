@@ -38,7 +38,7 @@ protocol NearbyConnectionsInvokeEventDelegate{
     
     func onEndpointLost(endpointId:String)
     
-    func onPayloadReceived(endpointId:String,payloadType:String,bytes:Data,payloadId:Int,filePath:String)
+    func onPayloadReceived(endpointId:String,payloadType:String,bytes:Data,payloadId:Int,filePath:String?)
     
     func onPayloadTransferUpdate(endpointId:String,payloadId:Int64,payloadStatus:String,bytesTransferred:Int,totalBytes:Int)
     

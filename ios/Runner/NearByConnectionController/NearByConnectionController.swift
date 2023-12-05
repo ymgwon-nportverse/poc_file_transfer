@@ -74,6 +74,7 @@ class NearByConnectionController{
     }
     
     func sendPayload (to endpointIDs: [EndpointID],bytes:FlutterStandardTypedData){
+        os_log("🥕 start [NearByConnectionController]__sendPayload")
         let payloadID = PayloadID.unique()
         let token = connectionManager.send(Data(bytes.data), to: endpointIDs, id: payloadID)
         let payload = Payload(
@@ -84,19 +85,14 @@ class NearByConnectionController{
             cancellationToken: token
         )
         
-//        for endpointID in endpointIDs {
-//            guard let index = connections.firstIndex(where: { $0.endpointID == endpointID }) else {
-//                return
-//            }
-//            connections[index].payloads.insert(payload, at: 0)
-//        }
-           for endpointID in endpointIDs {
-                    if(connections.isEmpty){
-                        var payloads =  connections.first?.payloads
-                        payloads?.append(payload)
-                    }
-                }
-        os_log("[NearByConnectionController]__sendPayload")
+        for endpointID in endpointIDs {
+            guard let index = connections.firstIndex(where: { $0.endpointID == endpointID }) else {
+                return
+            }
+            os_log("🥕 endpointID => \(endpointID), connections \(self.connections) ")
+            connections[index].payloads.insert(payload, at: 0)
+        }
+        os_log("🥕 start [NearByConnectionController]__sendPayload")
     }
     
     func acceptEndPoint(endpointID:String){
