@@ -186,16 +186,8 @@ class PayloadTransferUpdate {
   final PayloadStatus status;
 }
 
-/// file로 보낼때는 filePath에만 값이 있어야하고,
-/// bytes로 보낼때는 bytes에만 값이 있어야함.
-///
-/// assert 문 혹은
-/// [test](test/src/nearby/application/nearby_test.dart) 참고
-///
-/// id 값은 payload를 보내는 입장에서 입력하지 않아도 됨
-/// - Nearby Connections API 가 생성된 값을 주기 때문
-///
-/// 이런 경우 Send와 Receive class를 분리하는 것도 하나의 방법이 될 수 있음.
+/// 추후 file, stream 형태의 Payload 사용하는 경우에는,
+/// [PayloadType] 으로 형태 판단하여 사용하기
 class Payload {
   /// sender는 이것만 사용하면 됨
   /// - id 및 type 은 보낼 때 사용되지 않고, Nearby Connections API 가
@@ -215,10 +207,7 @@ class Payload {
     this.bytes,
     this.type = PayloadType.none,
     this.filePath,
-  }) : assert(
-          (bytes != null) ^ (filePath != null),
-          'Payload must have either bytes or filePath, not both or neither',
-        );
+  });
 
   final int id;
   final PayloadType type;
