@@ -144,7 +144,7 @@ class NearbyReceiverBloc extends AutoDisposeNotifier<NearbyReceiverState> {
   void _onDisconnected(
     String endpointId,
   ) {
-    _nearby.disconnectFromEndpoint(endpointId);
+    _transferredData = null;
     state = NearbyReceiverState.none(_userName!);
   }
 
