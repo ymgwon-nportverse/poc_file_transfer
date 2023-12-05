@@ -9,9 +9,9 @@ import Foundation
 import NearbyConnections
 
 // 추가
-struct PayloadTransferUpdate {
-    let id: PayloadID
-    let bytesTransferred: Int
-    let totalBytes: Int
-    var status: PayloadStatus
-}
+//struct PayloadTransferUpdate {
+//    let id: PayloadID
+//    let bytesTransferred: Int
+//    let totalBytes: Int
+//    var status: PayloadStatus
+//}

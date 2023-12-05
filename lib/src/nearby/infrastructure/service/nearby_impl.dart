@@ -282,7 +282,7 @@ final class NearbyImpl implements Nearby {
   void _handleOnPayloadTransferUpdate(Map<dynamic, dynamic> args) {
     String endpointId = args['endpointId'] ?? '-1';
     int payloadId = args['payloadId'] ?? -1;
-    final status = args['status'] ?? ConnectionStatus.error.name;
+    final status = args['status'] ?? PayloadStatus.none.name;
     int bytesTransferred = args['bytesTransferred'] ?? 0;
     int totalBytes = args['totalBytes'] ?? 0;
 

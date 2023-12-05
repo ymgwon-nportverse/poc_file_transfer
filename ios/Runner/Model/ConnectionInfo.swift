@@ -8,8 +8,8 @@
 import Foundation
 
 //  추가
-struct ConnectionInfo {
-    let endpointName: String
-    let authenticationDigits: String
-    let isIncomingConnection: Bool
-}
+//struct ConnectionInfo {
+//    let endpointName: String
+//    let authenticationDigits: String
+//    let isIncomingConnection: Bool
+//}
