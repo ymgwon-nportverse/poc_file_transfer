@@ -7,12 +7,13 @@
 
 import Foundation
 import NearbyConnections
-
+import OSLog
 
 extension NearByConnectionController : AdvertiserDelegate {
     func advertiser(_ advertiser: Advertiser, didReceiveConnectionRequestFrom endpointID: EndpointID, with context: Data, connectionRequestHandler: @escaping (Bool) -> Void) {
 
         guard let endpointName = String(data: context, encoding: .utf8) else {
+            os_log("[AdvertiserDelegate] \(endpointID)")
             return
         }
         
@@ -23,6 +24,8 @@ extension NearByConnectionController : AdvertiserDelegate {
         )
         endpoints.insert(endpoint, at: 0)
         connectionRequestHandler(true)
+        
+        os_log("[AdvertiserDelegate]__connection success!")
     }
     
 }

@@ -8,6 +8,7 @@
 import Foundation
 import Flutter
 import UIKit
+import OSLog
 
 public class FlutterChannelConnector : FlutterChannelConnectorDelegate,FlutterChannelMethodCallDelegate{
     
@@ -26,7 +27,12 @@ public class FlutterChannelConnector : FlutterChannelConnectorDelegate,FlutterCh
     
     
     func setMethodCallHandler(){
-        FlutterChannelConnector.flutterMethodChannel?.setMethodCallHandler(self.handler)
+        do{
+           try FlutterChannelConnector.flutterMethodChannel?.setMethodCallHandler(self.handler)
+            os_log("[FlutterChannelConnector_setMethodCallHandler] result = success")
+        }catch{
+            os_log(.error, log: .default, "[FlutterChannelConnector_setMethodCallHandler]__\(error)")
+        }
     }
     
     var handler: FlutterMethodCallHandler {

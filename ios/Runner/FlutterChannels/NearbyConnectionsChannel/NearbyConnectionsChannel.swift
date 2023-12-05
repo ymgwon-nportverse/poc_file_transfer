@@ -9,115 +9,131 @@ import Foundation
 import NearbyConnections
 import UIKit
 import Flutter
-
+import OSLog
 
 class NearbyConnectionsChannel : FlutterChannelDelegate {
     
     var nearByConnectionController: NearByConnectionController = NearByConnectionController.shared
     
     func callback(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        var args =  call.arguments as? Dictionary<String, Any>
-        var method = call.method as String
-        var endpointId:String?
         
-        if((args?.keys.contains("endpointId")) != nil){
-            endpointId = args?["endpointId"] as? String
+            var args =  call.arguments as? Dictionary<String, Any>
+            var method = call.method as String
+            var endpointId:String?
+            
+            if((args?.keys.contains("endpointId")) != nil){
+                endpointId = args?["endpointId"] as? String
+            }
+            
+            os_log("Starting flutter nearby_connections channel method call !! method => \(method) , args =>  \(String(describing: args))")
+            
+          switch(method){
+            case Constants.startAdvertising : return startAdvertising(result: result)
+            case Constants.stopAdvertising: return stopAdvertising(result: result)
+                
+            case Constants.startDiscovery: return startDiscovery(result: result)
+            case Constants.stopDiscovery : return stopDiscovery(result: result)
+                
+            case Constants.stopAllEndpoints: return stopAllEndpoints(result: result)
+            case Constants.disconnectFromEndpoint: return disconnectFromEndpoint(endpointId: endpointId!, result: result)
+                
+            case Constants.acceptConnection : return acceptConnection(endpointId: endpointId!, result: result)
+            case Constants.requestConnection: return requestConnection(endpointId: endpointId!, result: result)
+            case Constants.rejectConnection: return rejectConnection(endpointId: endpointId!, result: result)
+            case Constants.sendPayload :
+                
+                let rawPayload = args?["payload"] as! Dictionary<String, Any>
+                
+                return sendPayload(endpointId: endpointId!,rawPayload: rawPayload, result: result)
+            case Constants.cancelPayload: return cancelPayload(payloadId: endpointId!,result: result)
+                
+            default:
+                print("")
+            }
         }
-        print("args =>  \(String(describing: args))🍏🍏🍏 , method => \(method)")
-        
-        switch(method){
-        case Constants.startAdvertising : return startAdvertising(result: result)
-        case Constants.stopAdvertising: return stopAdvertising(result: result)
-            
-        case Constants.startDiscovery: return startDiscovery(result: result)
-        case Constants.stopDiscovery : return stopDiscovery(result: result)
-            
-        case Constants.stopAllEndpoints: return stopAllEndpoints(result: result)
-        case Constants.disconnectFromEndpoint: return disconnectFromEndpoint(endpointId: endpointId!, result: result)
-            
-        case Constants.acceptConnection : return acceptConnection(endpointId: endpointId!, result: result)
-        case Constants.requestConnection: return requestConnection(endpointId: endpointId!, result: result)
-        case Constants.rejectConnection: return rejectConnection(endpointId: endpointId!, result: result)
-        case Constants.sendPayload :
-            
-            let rawPayload = args?["payload"] as! Dictionary<String, Any>
-            
-            return sendPayload(endpointId: endpointId!,rawPayload: rawPayload, result: result)
-        case Constants.cancelPayload: return cancelPayload(payloadId: endpointId!,result: result)
-            
-        default:
-            print("")
-        }
-    }
-    
 }
 
 extension NearbyConnectionsChannel: NearbyConnectionsMethodCallEventDelegate{
-    
-    
+ 
     func startAdvertising(result: @escaping FlutterResult) {
         nearByConnectionController.invalidateAdvertising(isEnabled: true)
         result(true)
+       os_log("[NearbyConnectionsChannel_startAdvertising] result = success")
     }
     
     func stopAdvertising(result: @escaping FlutterResult) {
         nearByConnectionController.invalidateAdvertising(isEnabled: false)
         result(true)
+        os_log("[NearbyConnectionsChannel_stopAdvertising] result = success")
     }
     
     func startDiscovery(result: @escaping FlutterResult) {
         nearByConnectionController.invalidateDiscovery(isEnabled: true)
         result(true)
+        os_log("[NearbyConnectionsChannel_startDiscovery] result = success")
     }
     
     func stopDiscovery(result: @escaping FlutterResult) {
         nearByConnectionController.invalidateDiscovery(isEnabled: false)
         result(true)
+        os_log("[NearbyConnectionsChannel_stopDiscovery] result = success")
     }
     
     func stopAllEndpoints(result: @escaping FlutterResult) {
         nearByConnectionController.stopAllEndpoints()
         result(true)
+        os_log("[NearbyConnectionsChannel_stopAllEndpoints] result = success")
     }
     
     func disconnectFromEndpoint(endpointId: String, result: @escaping FlutterResult) {
         nearByConnectionController.disconnect(from: endpointId)
         result(true)
+        os_log("[NearbyConnectionsChannel_disconnectFromEndpoint] result = success")
     }
     
     func acceptConnection(endpointId: String, result: @escaping FlutterResult) {
         nearByConnectionController.acceptEndPoint(endpointID: endpointId)
         result(true)
+        os_log("[NearbyConnectionsChannel_acceptConnection] result = success")
     }
     
     func requestConnection(endpointId: String, result: @escaping FlutterResult) {
         nearByConnectionController.requestConnection(to: endpointId)
         result(true)
+        os_log("[NearbyConnectionsChannel_requestConnection] result = success")
     }
     
     func rejectConnection(endpointId: String, result: @escaping FlutterResult) {
         nearByConnectionController.rejection()
         result(true)
+        os_log("[NearbyConnectionsChannel_rejectConnection] result = success")
     }
     
     func sendPayload(endpointId: String, rawPayload: Dictionary<String, Any>, result: @escaping FlutterResult) {
         let bytes = rawPayload["bytes"] as!  FlutterStandardTypedData
         nearByConnectionController.sendPayload(to: [endpointId], bytes: bytes)
+        os_log("[NearbyConnectionsChannel_sendPayload] result = success")
     }
     
     func cancelPayload(payloadId: String, result: @escaping FlutterResult) {
         // todo
         
         result(true)
+        os_log("[NearbyConnectionsChannel_cancelPayload] result = success")
     }
     
 }
 
+// todo 바뀜
 class NearbyConnectionsInvokeEvent: NearbyConnectionsInvokeEventDelegate,InvokeMethodDelegate{
     
     func invokeMethod(method:FlutterInvokeMethodEvent,args:[String : Any]){
-        FlutterChannelConnector.flutterMethodChannel?.invokeMethod(method.toString, arguments: args)
-        
+        do{
+          try  FlutterChannelConnector.flutterMethodChannel?.invokeMethod(method.toString, arguments: args)
+            os_log("[NearbyConnectionsChannel_\(method.toString)] result = success")
+        }catch{
+            os_log(.error, log: .default, "[NearbyConnectionsChannel_\(method.toString)]__\(error)")
+        }
     }
     
     func onEndpointFound(endpointId: String, endpointName: String, serviceId: String){

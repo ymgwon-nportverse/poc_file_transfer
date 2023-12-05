@@ -8,9 +8,10 @@
 import Foundation
 import Flutter
 import UIKit
+import OSLog
 
 class FlutterBridge:FlutterBridgeDictionaryDelegate{
-    var dict: Dictionary<String, FlutterChannelDelegate> = [Constants.methodChannelName:NearbyConnectionsChannel()]
+    var dict: Dictionary<String, FlutterChannelDelegate> = [Constants.nearbyConnectionsMethodChannel:NearbyConnectionsChannel()]
     
     
     init(controller: FlutterViewController) {
@@ -32,11 +33,14 @@ class FlutterBridge:FlutterBridgeDictionaryDelegate{
     }
     
     
- func connectBridge(){
-     let channels  = registerChannel()
-        channels.forEach{
-            $0.setMethodCallHandler()
+    func connectBridge(){
+        do{
+        let channels  = registerChannel()
+            try channels.forEach{
+                $0.setMethodCallHandler()
+            }
+        }catch{
+            os_log(.error, log: .default, "[FlutterBridge]__\(error)")
         }
     }
-    
 }

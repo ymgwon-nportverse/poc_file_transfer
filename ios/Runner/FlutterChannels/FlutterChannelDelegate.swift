@@ -10,7 +10,5 @@ import Flutter
 import UIKit
 
 protocol FlutterChannelDelegate{
-
     func callback(call: FlutterMethodCall, result: @escaping FlutterResult)
-    
 }
