@@ -1,6 +1,3 @@
-import 'dart:developer';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poc/src/core/presentation/extensions/extensions.dart';
@@ -77,12 +74,12 @@ class _NearbySenderScreenState extends ConsumerState<NearbySenderScreen> {
       (previous, current) {
         switch (current) {
           case NearbySenderStateNone():
-            log('here goes none');
+            break;
           case NearbySenderStateDiscovering():
 
             /// 이 case 는 전송하기 위해서 target을 설정 하였는데 advertising 목록에서
             /// 졌을 때 UI 처리를 위한 로직임
-            if (!current.devices
+            if (current.devices
                 .contains(ref.watch(uiSendPropertyProvider).selectedDevice)) {
               bool didPop = false;
               context.navigator.popUntil(
@@ -141,17 +138,16 @@ class _NearbySenderScreenState extends ConsumerState<NearbySenderScreen> {
 
             ref.read(nearbySenderBlocProvider.notifier).mapEventToState(
                   NearbySenderEvent.sendPayload(
-                    Uint8List.fromList(
-                      ref.read(uiSendPropertyProvider).selectedData!.codeUnits,
-                    ),
+                    ref.read(uiSendPropertyProvider).selectedAsset!.toDomain(),
                   ),
                 );
 
           case NearbySenderStateFailed():
-            context.navigator.pushNamed('/nearby/send/reject').then(
+            context.navigator.pushNamed('/nearby/send/fail').then(
                   (_) => context.navigator
                       .popUntil((routes) => routes.settings.name == '/nearby'),
                 );
+
           case NearbySenderStateSuccess():
             context.navigator.pushNamed('/nearby/send/success').then(
                   (_) => context.navigator

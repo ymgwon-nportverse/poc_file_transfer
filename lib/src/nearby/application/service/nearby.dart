@@ -4,7 +4,7 @@ import 'dart:typed_data';
 /// [ConnectionClient](https://developers.google.com/android/reference/com/google/android/gms/nearby/connection/ConnectionsClient)
 /// class 에 따라 비슷하게 만든 interface.
 ///
-/// [flutter: nearby_connections](https://www.github.com:mannprerak2/nearby_connections) 를 reference 로 삼아 만듬.
+/// [flutter: nearby_connections](https://www.github.com/mannprerak2/nearby_connections) 를 reference 로 삼아 만듬.
 abstract interface class Nearby {
   /// [startAdvertising] 을 통해 스스롤 광고 하고 있는 기기를 찾는 명령
   Future<void> startDiscovery(
@@ -20,7 +20,6 @@ abstract interface class Nearby {
     String userName,
     Strategy strategy, {
     String serviceId = 'com.nportverse.poc',
-    required OnBandwidthChanged onBandwidthChanged,
     required OnConnectionInitiated onConnectionInitiated,
     required OnConnectionResult onConnectionResult,
     required OnDisconnected onDisconnected,
@@ -52,7 +51,6 @@ abstract interface class Nearby {
   Future<void> requestConnection(
     String userName,
     String endpointId, {
-    required OnBandwidthChanged onBandwidthChanged,
     required OnConnectionInitiated onConnectionInitiated,
     required OnConnectionResult onConnectionResult,
     required OnDisconnected onDisconnected,
@@ -67,10 +65,6 @@ abstract interface class Nearby {
 
 // callbacks
 // ==================
-typedef OnBandwidthChanged = void Function(
-  String endpointId,
-  BandwidthQuality quality,
-);
 
 typedef OnConnectionInitiated = void Function(
   String endpointId,

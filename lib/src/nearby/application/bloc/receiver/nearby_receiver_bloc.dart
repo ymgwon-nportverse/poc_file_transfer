@@ -4,10 +4,12 @@ import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_event.dart';
 import 'package:poc/src/nearby/application/bloc/receiver/nearby_receiver_state.dart';
+import 'package:poc/src/nearby/application/service/asset_facade_service.dart';
 import 'package:poc/src/nearby/application/service/exceptions.dart';
 import 'package:poc/src/nearby/application/service/nearby.dart';
 import 'package:poc/src/nearby/application/service/user_info_fetcher.dart';
 import 'package:poc/src/nearby/di.dart';
+import 'package:poc/src/nearby/domain/entity/asset.dart';
 
 // REF: StateNotifier -> Notifier 로 migration 하면서
 //      `WidgetRef`를 이용한 의존성 주입을 사용할 수 없게 되었음.
@@ -17,17 +19,11 @@ import 'package:poc/src/nearby/di.dart';
 class NearbyReceiverBloc extends AutoDisposeNotifier<NearbyReceiverState> {
   late final Nearby _nearby;
   late final UserInfoFetcher _infoFetcher;
+  late final AssetFacadeService _assetService;
 
   /// [advertise] 할 때, 상대에게 누군지 알려주기 위한 값.
   ///
   /// 이 BLoC 클래스 생성하며, initializer 에서 이름을 업데이트하게 되어있음.
-  ///
-  /// c.f.)
-  ///
-  /// - `unidentified` 라는 이름은 부적절함. 추후 수정하는게 좋을 것으로 보임.
-  ///   - 이는 정보를 불러오는 함수가 [FutureOr], 즉 비동기일 가능성이 큰 함수이기 때문에
-  /// 불러오기 전까진 [_userName]이 null 값 일 수 밖에 없고, 이는 다른 메소드에서 사용될 때
-  /// nullable 확인을 해야하는 귀찮은 상황이 발생할 수 있기 때문에 default 값을 선정함.
   String? _userName;
 
   /// REF: 임시 저장을 위한 변수
@@ -39,6 +35,7 @@ class NearbyReceiverBloc extends AutoDisposeNotifier<NearbyReceiverState> {
   NearbyReceiverState build() {
     _nearby = ref.watch(nearbyProvider);
     _infoFetcher = ref.watch(infoFetcherProvider);
+    _assetService = ref.watch(assetFacadeServiceProvider);
     _loadUserName();
     ref.onDispose(() {
       stopAll();
@@ -67,7 +64,6 @@ class NearbyReceiverBloc extends AutoDisposeNotifier<NearbyReceiverState> {
       await _nearby.startAdvertising(
         _userName!,
         strategy,
-        onBandwidthChanged: _onBandwidthChanged,
         onConnectionInitiated: _onConnectionInitiated,
         onConnectionResult: _onConnectionResult,
         onDisconnected: _onDisconnected,
@@ -165,6 +161,9 @@ class NearbyReceiverBloc extends AutoDisposeNotifier<NearbyReceiverState> {
       endpointId,
     );
 
+    _assetService.saveAssetByReceiver(
+        _userName!, TextAsset.fromText(_transferredData!));
+
     state = NearbyReceiverState.success(_transferredData!);
   }
 
@@ -198,10 +197,4 @@ class NearbyReceiverBloc extends AutoDisposeNotifier<NearbyReceiverState> {
         state = const NearbyReceiverState.failed('canceled');
     }
   }
-
-  /// API에는 존재하나, 현재는 크게 필요성을 못느껴서 없애도 될거 같다는 생각이 듬
-  void _onBandwidthChanged(
-    String endpointId,
-    BandwidthQuality quality,
-  ) {}
 }

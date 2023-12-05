@@ -14,6 +14,7 @@ import 'package:poc/src/nearby/presentation/receiver/widgets/dialogs/nearby_rece
 import 'package:poc/src/nearby/presentation/receiver/widgets/dialogs/nearby_receive_success_dialog.dart';
 import 'package:poc/src/nearby/presentation/sender/nearby_sender_screen.dart';
 import 'package:poc/src/nearby/presentation/sender/widgets/bottom_sheets/nearby_send_confirm_bottom_sheet.dart';
+import 'package:poc/src/nearby/presentation/sender/widgets/dialogs/nearby_send_failure_dialog.dart';
 import 'package:poc/src/nearby/presentation/sender/widgets/dialogs/nearby_send_interrupt_dialog.dart';
 import 'package:poc/src/nearby/presentation/sender/widgets/dialogs/nearby_send_rejection_dialog.dart';
 import 'package:poc/src/nearby/presentation/sender/widgets/dialogs/nearby_send_success_dialog.dart';
@@ -177,6 +178,14 @@ class AppRouterDelegate extends RouterDelegate<Object>
               useSafeArea: true,
               barrierDismissible: true,
               builder: (context) => const NearbySendSuccessDialog(),
+            );
+          case '/nearby/send/fail':
+            return DialogRoute(
+              settings: const RouteSettings(name: '/nearby/send/fail'),
+              context: context,
+              useSafeArea: true,
+              barrierDismissible: true,
+              builder: (context) => const NearbySendFailureDialog(),
             );
           case '/nearby/send/interrupt':
             final arguments = settings.arguments as Map<String, dynamic>;

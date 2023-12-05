@@ -19,13 +19,11 @@ class NearbySendReceiversSection extends ConsumerWidget {
           '유저 목록',
           style: context.textTheme.headlineSmall,
         ),
-        const Divider(),
+        const Divider(height: 8),
         Expanded(
           child: _receiverListOnDiscovering(ref),
         ),
-        const Divider(
-          height: 2,
-        ),
+        const Divider(height: 8),
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(

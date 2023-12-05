@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poc/src/nearby/application/bloc/sender/nearby_sender_state.dart';
+import 'package:poc/src/nearby/presentation/view_models/asset_view_model.dart';
 
 /// Send 페이지 에서 UI 상태를 관리하는 클래스의 Provider
 final uiSendPropertyProvider =
@@ -11,11 +12,11 @@ class UiSendProperty with ChangeNotifier {
   UiSendProperty();
 
   /// 임시 할당값. 이후 대체될 것
-  String? _selectedData;
-  String? get selectedData => _selectedData;
+  AssetViewModel? _selectedAsset;
+  AssetViewModel? get selectedAsset => _selectedAsset;
 
-  void setData(String? newData) {
-    _selectedData = newData;
+  void setData(AssetViewModel? newData) {
+    _selectedAsset = newData;
     notifyListeners();
   }
 
@@ -28,6 +29,6 @@ class UiSendProperty with ChangeNotifier {
   }
 
   bool get isReadySubmit {
-    return _selectedData != null && _selectedDevice != null;
+    return _selectedAsset != null && _selectedDevice != null;
   }
 }
