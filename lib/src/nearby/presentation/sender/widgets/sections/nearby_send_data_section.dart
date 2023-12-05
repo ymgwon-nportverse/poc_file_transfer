@@ -94,7 +94,11 @@ class _NearbyTextAssetsListState extends ConsumerState<NearbyTextAssetsList> {
         }
       },
       error: (e, stackTrace) {
-        return Text(e.toString());
+        return const Center(
+          child: Text(
+            '데이터를 불러오는 중 에러가 발생하였습니다.',
+          ),
+        );
       },
       loading: () {
         return const Center(

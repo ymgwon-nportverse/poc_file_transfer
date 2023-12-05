@@ -42,6 +42,8 @@ final class AssetFacadeServiceFakeImpl implements AssetFacadeService {
         return assets;
       } on NetworkException {
         rethrow;
+      } on InvalidServerCallException {
+        rethrow;
       }
     }
 

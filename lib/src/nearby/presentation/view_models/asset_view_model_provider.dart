@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poc/src/nearby/application/service/asset_facade_service.dart';
+import 'package:poc/src/nearby/application/service/exceptions.dart';
 import 'package:poc/src/nearby/di.dart';
 import 'package:poc/src/nearby/presentation/view_models/asset_view_model.dart';
 
@@ -25,9 +26,13 @@ class AssetViewModelProvider
 
   Future<void> getRemoteAssets() async {
     state = const AsyncValue.loading();
-    final remoteAssets = (await _service.getRemoteAssets())
-        .map((domain) => AssetViewModel.fromRemoteDomain(domain))
-        .toList();
-    state = AsyncValue.data([...state.value!, ...remoteAssets]);
+    try {
+      final remoteAssets = (await _service.getRemoteAssets())
+          .map((domain) => AssetViewModel.fromRemoteDomain(domain))
+          .toList();
+      state = AsyncValue.data([...state.value!, ...remoteAssets]);
+    } on InvalidServerCallException catch (e) {
+      state = AsyncValue.error(e, StackTrace.current);
+    }
   }
 }
