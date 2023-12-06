@@ -12,7 +12,7 @@ class CommonBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: context.sizeOf.height / 3,
+      height: context.sizeOf.height / 2.5,
       child: Material(
         color: context.theme.colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
